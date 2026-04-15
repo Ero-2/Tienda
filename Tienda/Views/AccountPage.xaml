@@ -1,0 +1,26 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Tienda.Views.AccountPage"
+             BackgroundColor="Black"
+             Title="PERFIL">
+
+    <VerticalStackLayout Spacing="30" Padding="30" VerticalOptions="Center">
+        <Border Stroke="#CCFF00" StrokeThickness="3" WidthRequest="120" HeightRequest="120" HorizontalOptions="Center">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="60" />
+            </Border.StrokeShape>
+            <Image Source="user_avatar.png" Aspect="AspectFill" />
+        </Border>
+
+        <VerticalStackLayout HorizontalOptions="Center" Spacing="5">
+            <Label Text="NOMADE_USER" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+            <Label Text="Socio Nivel Elite" TextColor="#888888" HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="10">
+            <Button Text="HISTORIAL DE COMPRAS" BackgroundColor="#1A1A1A" TextColor="White" CornerRadius="0" HeightRequest="50" />
+            <Button Text="MIS DIRECCIONES" BackgroundColor="#1A1A1A" TextColor="White" CornerRadius="0" HeightRequest="50" />
+            <Button Text="CERRAR SESIÓN" BackgroundColor="Transparent" TextColor="#FF3E00" BorderColor="#FF3E00" BorderWidth="1" CornerRadius="0" />
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>
