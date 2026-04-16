@@ -9,121 +9,142 @@
              NavigationPage.HasNavigationBar="False"
              Title="THE DROP">
 
-    <!-- Barra de 3 puntos personalizada -->
-    <RefreshView IsRefreshing="{Binding IsRefreshing}" 
-                 Command="{Binding LoadProductsCommand}"
-                 RefreshColor="#CCFF00">
-        <Grid RowDefinitions="Auto, Auto, *"
-              Padding="0,0,0,0"
-              RowSpacing="0">
+    <!-- 🔥 BARRA SUPERIOR NEGRA PERSONALIZADA (única, sin duplicados) -->
+    <Grid RowDefinitions="Auto, Auto, *"
+          Padding="0"
+          BackgroundColor="#121212">
 
-            <!-- Cabecera principal con logo y menú de 3 puntos -->
-            <Grid Grid.Row="0"
-                  Padding="20,12"
-                  ColumnDefinitions="Auto, *, Auto"
-                  BackgroundColor="#121212">
-                <Label Grid.Column="0"
-                       Text="THE DROP"
-                       TextColor="White"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       CharacterSpacing="1.5"
-                       VerticalOptions="Center" />
+        <!-- Barra negra: logo + título + íconos -->
+        <Grid Grid.Row="0"
+              HeightRequest="56"
+              ColumnDefinitions="Auto, *, Auto, Auto"
+              Padding="20,0,20,0"
+              VerticalOptions="Start">
 
-                <!-- Botón de tres puntos para acceder a la cuenta -->
-                <ImageButton Grid.Column="2"
-                             Command="{Binding GoToAccountCommand}"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             BackgroundColor="Transparent"
-                             WidthRequest="44"
-                             HeightRequest="44">
-                    <ImageButton.Source>
-                        <FontImageSource Glyph="⋮"
-                                         FontFamily="Segoe UI Symbol"
-                                         Size="28"
-                                         Color="White" />
-                    </ImageButton.Source>
-                </ImageButton>
-            </Grid>
+            <!-- Logo "THE DROP" (izquierda) -->
+            <Label Grid.Column="0"
+                   Text="THE DROP"
+                   TextColor="White"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   CharacterSpacing="1.5"
+                   VerticalOptions="Center" />
 
-            <!-- Título de sección NUEVA OLA -->
-            <VerticalStackLayout Grid.Row="1"
-                                 Padding="20,8,20,16"
-                                 Spacing="4">
-                <Label Text="NUEVA OLA"
-                       TextColor="White"
-                       FontSize="32"
-                       FontAttributes="Bold"
-                       CharacterSpacing="1.8" />
-                <BoxView HeightRequest="3"
-                         WidthRequest="70"
-                         Color="#CCFF00"
-                         HorizontalOptions="Start" />
-            </VerticalStackLayout>
+            <!-- Título de sección (centro) -->
+            <Label Grid.Column="1"
+                   Text="NUEVA OLA"
+                   TextColor="#CCFF00"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="Center" />
 
-            <!-- Colección desplazable de productos (scroll vertical) -->
-            <CollectionView Grid.Row="2"
-                            ItemsSource="{Binding Products}"
-                            Margin="16,0,16,16"
-                            RemainingItemsThreshold="5"
-                            VerticalScrollBarVisibility="Always">
-                <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical"
-                                     Span="2"
-                                     HorizontalItemSpacing="12"
-                                     VerticalItemSpacing="16" />
-                </CollectionView.ItemsLayout>
+            <!-- Ícono de menú hamburguesa (☰) -->
+            <ImageButton Grid.Column="2"
+                         Command="{Binding GoToAccountCommand}"
+                         HorizontalOptions="End"
+                         VerticalOptions="Center"
+                         BackgroundColor="Transparent"
+                         WidthRequest="44"
+                         HeightRequest="44">
+                <ImageButton.Source>
+                    <FontImageSource Glyph="☰"
+                                     FontFamily="Segoe UI Symbol"
+                                     Size="24"
+                                     Color="White" />
+                </ImageButton.Source>
+            </ImageButton>
 
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Product">
-                        <!-- Tarjeta moderna con sombra y esquinas redondeadas -->
-                        <Border StrokeThickness="0"
-                                BackgroundColor="#1E1E1E"
-                                StrokeShape="RoundRectangle 12"
-                                Padding="0">
-                            <Border.Shadow>
-                                <Shadow Brush="#000000"
-                                        Radius="8"
-                                        Offset="0,4"
-                                        Opacity="0.6" />
-                            </Border.Shadow>
-
-                            <Grid RowDefinitions="160, Auto, Auto"
-                                  RowSpacing="4">
-                                <!-- Imagen del producto -->
-                                <Image Grid.Row="0"
-                                       Source="{Binding ImageUrl}"
-                                       Aspect="AspectFill"
-                                       HeightRequest="160">
-                                    <Image.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ProductsViewModel}}, Path=ProductTappedCommand}"
-                                                              CommandParameter="{Binding .}" />
-                                    </Image.GestureRecognizers>
-                                </Image>
-
-                                <!-- Nombre del producto -->
-                                <Label Grid.Row="1"
-                                       Text="{Binding Name}"
-                                       TextColor="White"
-                                       FontSize="14"
-                                       FontAttributes="Bold"
-                                       MaxLines="2"
-                                       LineBreakMode="TailTruncation"
-                                       Margin="12,10,12,0" />
-
-                                <!-- Precio con acento neón -->
-                                <Label Grid.Row="2"
-                                       Text="{Binding Price, StringFormat='${0:F2}'}"
-                                       TextColor="#CCFF00"
-                                       FontSize="16"
-                                       FontAttributes="Bold"
-                                       Margin="12,0,12,14" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <!-- Ícono de carrito (🛒) -->
+            <ImageButton Grid.Column="3"
+                         Command="{Binding GoToCartCommand}"
+                         HorizontalOptions="End"
+                         VerticalOptions="Center"
+                         BackgroundColor="Transparent"
+                         WidthRequest="44"
+                         HeightRequest="44"
+                         Margin="8,0,0,0">
+                <ImageButton.Source>
+                    <FontImageSource Glyph="🛒"
+                                     FontFamily="Segoe UI Symbol"
+                                     Size="24"
+                                     Color="White" />
+                </ImageButton.Source>
+            </ImageButton>
         </Grid>
-    </RefreshView>
+
+        <!-- Título "NUEVA OLA" con línea amarilla -->
+        <VerticalStackLayout Grid.Row="1"
+                             Padding="20,8,20,16"
+                             Spacing="4"
+                             IsVisible="True">
+            <Label Text="NUEVA OLA"
+                   TextColor="White"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   CharacterSpacing="1.8" />
+            <BoxView HeightRequest="3"
+                     WidthRequest="70"
+                     Color="#CCFF00"
+                     HorizontalOptions="Start" />
+        </VerticalStackLayout>
+
+        <!-- Colección de productos -->
+        <CollectionView Grid.Row="2"
+                        ItemsSource="{Binding Products}"
+                        Margin="16,0,16,16"
+                        RemainingItemsThreshold="5">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="2"
+                                 HorizontalItemSpacing="12"
+                                 VerticalItemSpacing="16" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Product">
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#1E1E1E"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="0">
+                        <Border.Shadow>
+                            <Shadow Brush="#000000"
+                                    Radius="8"
+                                    Offset="0,4"
+                                    Opacity="0.6" />
+                        </Border.Shadow>
+
+                        <Grid RowDefinitions="160, Auto, Auto"
+                              RowSpacing="4">
+                            <Image Grid.Row="0"
+                                   Source="{Binding ImageUrl}"
+                                   Aspect="AspectFill"
+                                   HeightRequest="160">
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ProductsViewModel}}, Path=ProductTappedCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Image.GestureRecognizers>
+                            </Image>
+
+                            <Label Grid.Row="1"
+                                   Text="{Binding Name}"
+                                   TextColor="White"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   MaxLines="2"
+                                   LineBreakMode="TailTruncation"
+                                   Margin="12,10,12,0" />
+
+                            <Label Grid.Row="2"
+                                   Text="{Binding Price, StringFormat='${0:F2}'}"
+                                   TextColor="#CCFF00"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   Margin="12,0,12,14" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>

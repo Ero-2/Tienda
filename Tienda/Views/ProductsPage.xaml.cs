@@ -1,23 +1,21 @@
-﻿using Tienda.ViewModels;
+﻿// Tienda/Views/ProductsPage.xaml.cs
+using Tienda.ViewModels;
 
 namespace Tienda.Views;
 
 public partial class ProductsPage : ContentPage
 {
+    private readonly ProductsViewModel _viewModel;
+
     public ProductsPage(ProductsViewModel viewModel)
     {
         InitializeComponent();
-        BindingContext = viewModel;
+        BindingContext = _viewModel = viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-
-        // Ejecuta la carga de datos cada vez que se abre la vista
-        if (BindingContext is ProductsViewModel viewModel)
-        {
-            viewModel.LoadProductsCommand.Execute(null);
-        }
+        await _viewModel.LoadProductsCommand.ExecuteAsync(null);
     }
 }

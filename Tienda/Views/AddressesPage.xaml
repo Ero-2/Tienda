@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Tienda.ViewModels"
+             xmlns:models="clr-namespace:Tienda.Models"
+             x:DataType="vm:AccountViewModel"
+             x:Class="Tienda.Views.AddressesPage"
+             BackgroundColor="#111111"
+             NavigationPage.HasNavigationBar="False"
+             Title="Direcciones">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="20,16" Spacing="16">
+
+			<Label Text="MIS DIRECCIONES"
+                   TextColor="White"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   CharacterSpacing="2" />
+
+			<CollectionView ItemsSource="{Binding Addresses}">
+				<CollectionView.ItemTemplate>
+					<DataTemplate x:DataType="models:Address">
+						<!-- ✅ Ahora 'models:Address' SÍ EXISTE -->
+						<Border BackgroundColor="#1E1E1E"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="0"
+                                Padding="16,14">
+							<VerticalStackLayout Spacing="6">
+								<Label Text="{Binding Name}" TextColor="White" FontSize="14" FontAttributes="Bold" />
+								<Label Text="{Binding Street}" TextColor="#CCCCCC" FontSize="12" />
+								<Label Text="{Binding City}, {Binding State} {Binding ZipCode}" TextColor="#AAAAAA" FontSize="12" />
+								<Label Text="{Binding Country}" TextColor="#888888" FontSize="11" />
+								<Label Text="{Binding IsDefault, StringFormat='Predeterminada: {0}'}"
+                                       TextColor="{Binding IsDefault, Converter={StaticResource BoolToColorConverter}}"
+                                       FontSize="10" />
+							</VerticalStackLayout>
+						</Border>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+
+			<Border BackgroundColor="Transparent"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1"
+                    Stroke="#2E2E2E"
+                    Padding="0,14"
+                    Margin="0,24,0,0">
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding AddAddressCommand}" />
+				</Border.GestureRecognizers>
+				<Label Text="+ AGREGAR NUEVA DIRECCIÓN"
+                       TextColor="White"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+			</Border>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

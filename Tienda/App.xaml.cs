@@ -1,17 +1,21 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿// Tienda/App.xaml.cs
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Tienda
+namespace Tienda;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    public App()
     {
-        public App()
-        {
-            InitializeComponent();
-        }
+         InitializeComponent();
+    }
 
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            return new Window(new AppShell());
-        }
+    protected override Window CreateWindow(IActivationState? activationState)
+    {
+        // Obtener el ServiceProvider de la aplicación
+        var serviceProvider = (Application.Current as App)?.Handler.MauiContext?.Services;
+
+        // Crear AppShell pasándole el ServiceProvider
+        return new Window(new AppShell(serviceProvider));
     }
 }

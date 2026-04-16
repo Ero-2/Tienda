@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Tienda.ViewModels"
+             xmlns:models="clr-namespace:Tienda.Models"
+             x:DataType="vm:OrderHistoryViewModel"
+             x:Class="Tienda.Views.OrderHistoryPage"
+             BackgroundColor="#111111"
+             NavigationPage.HasNavigationBar="False"
+             Title="Historial">
+
+	<Grid RowDefinitions="Auto, *">
+
+		<!-- Header -->
+		<VerticalStackLayout Grid.Row="0" Padding="20,16,20,8" Spacing="4">
+			<Label Text="HISTORIAL DE COMPRAS"
+                   TextColor="White"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   CharacterSpacing="2" />
+			<BoxView HeightRequest="3" WidthRequest="70"
+                     Color="#CCFF00" HorizontalOptions="Start" />
+		</VerticalStackLayout>
+
+		<!-- Lista de pedidos -->
+		<CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Orders}"
+                        Margin="16,8,16,16">
+			<CollectionView.EmptyView>
+				<Label Text="No hay pedidos aún."
+                       TextColor="#666666"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       Margin="0,60,0,0" />
+			</CollectionView.EmptyView>
+
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="models:Order">
+					<Border BackgroundColor="#1E1E1E"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            Padding="16,14"
+                            Margin="0,0,0,12">
+						<VerticalStackLayout Spacing="6">
+
+							<!-- ID + Fecha -->
+							<HorizontalStackLayout Spacing="8">
+								<Label Text="{Binding Id}"
+                                       TextColor="#CCFF00"
+                                       FontSize="14"
+                                       FontAttributes="Bold" />
+								<Label Text="·" TextColor="#555555" FontSize="14" />
+								<Label Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}"
+                                       TextColor="#666666"
+                                       FontSize="12"
+                                       VerticalOptions="Center" />
+							</HorizontalStackLayout>
+
+							<!-- Total -->
+							<Label Text="{Binding Total, StringFormat='Total: ${0:F2}'}"
+                                   TextColor="White"
+                                   FontSize="14" />
+
+							<!-- Status -->
+							<Border BackgroundColor="#1ACCFF00"
+                                    StrokeShape="RoundRectangle 6"
+                                    StrokeThickness="0"
+                                    Padding="8,4"
+                                    HorizontalOptions="Start">
+								<Label Text="{Binding Status}"
+                                       TextColor="#CCFF00"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       CharacterSpacing="1" />
+							</Border>
+
+						</VerticalStackLayout>
+					</Border>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+
+	</Grid>
+</ContentPage>

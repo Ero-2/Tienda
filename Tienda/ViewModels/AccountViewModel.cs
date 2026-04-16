@@ -1,40 +1,102 @@
-﻿// ViewModels/AccountViewModel.cs
+﻿// Tienda/ViewModels/AccountViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
-using Tienda.Models;
+using Tienda.Services;
 
 namespace Tienda.ViewModels;
 
 public partial class AccountViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private string userName = "NOMADE_USER";
+    private readonly IAuthService _authService;
 
-    [ObservableProperty]
-    private string userLevel = "ELITE MEMBER";
+    [ObservableProperty] private string userName = "NOMADE_USER";
+    [ObservableProperty] private string userLevel = "ELITE MEMBER";
+    [ObservableProperty] private string avatarInitials = "NU";
+    [ObservableProperty] private int totalOrders = 12;
+    [ObservableProperty] private decimal totalSpent = 1432.50m;
+    [ObservableProperty] private int dropsParticipated = 3;
 
-    [ObservableProperty]
-    private string avatarUrl = "user_avatar.png";
+    public bool IsLoggedIn => _authService?.IsLoggedIn == true;
 
-    [RelayCommand]
-    private async Task UpdateProfile()
+    public AccountViewModel(IAuthService authService)
     {
-        // Para evitar errores de "no existe en el contexto", 
-        // asignamos al campo privado y el toolkit notificará a la propiedad pública.
-        var nuevoNombre = "NOMADE_" + new Random().Next(100, 999);
-        userName = nuevoNombre;
+        _authService = authService;
+        LoadUserData();
+    }
 
-        // Notificamos a la app
-        WeakReferenceMessenger.Default.Send(new UserUpdatedMessage(nuevoNombre));
+    private void LoadUserData()
+    {
+        if (!IsLoggedIn) return;
 
-        await Shell.Current.DisplayAlert("SISTEMA", "DROP INFO: Perfil Actualizado", "OK");
+        var email = _authService.GetUserEmail() ?? "NOMADE_USER";
+        UserName = email.Split('@')[0].ToUpperInvariant();
+
+        var parts = UserName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        AvatarInitials = parts.Length >= 2
+            ? $"{parts[0][0]}{parts[1][0]}"
+            : UserName.Length >= 2 ? UserName[..2] : UserName;
     }
 
     [RelayCommand]
-    private async Task Logout()
+    private async Task LogoutAsync()
     {
-        bool answer = await Shell.Current.DisplayAlert("LOGOUT", "¿Cerrar sesión?", "SÍ", "NO");
-        if (answer) await Shell.Current.GoToAsync("///ProductsPage");
+        try
+        {
+            bool answer = await MainThread.InvokeOnMainThreadAsync(() =>
+                Shell.Current.DisplayAlert("LOGOUT", "¿Cerrar sesión?", "SÍ", "NO"));
+
+            if (answer)
+            {
+                _authService.Logout();
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                    Shell.Current.GoToAsync("///LoginPage"));
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Logout Error] {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task GoToOrderHistoryAsync()
+    {
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                Shell.Current.GoToAsync(nameof(Views.OrderHistoryPage)));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Nav Error] {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task GoToAddressesAsync()
+    {
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                Shell.Current.GoToAsync(nameof(Views.AddressesPage)));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Nav Error] {ex.Message}");
+        }
+    }
+
+    [RelayCommand]
+    private async Task GoToNotificationsAsync()
+    {
+        try
+        {
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                Shell.Current.GoToAsync(nameof(Views.NotificationsPage)));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Nav Error] {ex.Message}");
+        }
     }
 }

@@ -1,43 +1,59 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Tienda/MauiProgram.cs
+using Microsoft.Extensions.Logging;
 using Tienda.Data;
+using Tienda.Services;
 using Tienda.ViewModels;
 using Tienda.Views;
 
-namespace Tienda
+namespace Tienda;
+
+public static class MauiProgram
 {
-    public static class MauiProgram
+    public static MauiApp Instance { get; private set; } = null!;
+
+    public static MauiApp CreateMauiApp()
     {
-        public static MauiApp CreateMauiApp()
-        {
-            var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+        var builder = MauiApp.CreateBuilder();
+        builder
+            .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+            });
 
-            // 1. Registro de la Base de Datos (SQLite)
-            // Usamos AddDbContext para que EF Core gestione el ciclo de vida
-            builder.Services.AddDbContext<AppDbContext>();
+        // Servicios
+        builder.Services.AddSingleton<AppDbContext>();
+        builder.Services.AddSingleton<ICartService, CartService>();
+        builder.Services.AddSingleton<IAuthService, AuthService>();
 
-            // 2. Registro de ViewModels
-            // Singleton para mantener el estado de los productos mientras la app viva
-            builder.Services.AddSingleton<ProductsViewModel>();
-            // Transient para la cuenta, se crea y destruye cada vez que entras
-            builder.Services.AddTransient<AccountViewModel>();
+        // ViewModels
+        builder.Services.AddTransient<LoginViewModel>();
+        builder.Services.AddTransient<ProductsViewModel>();
+        builder.Services.AddTransient<ProductDetailViewModel>();
+        builder.Services.AddTransient<CartViewModel>();
+        builder.Services.AddTransient<OrderTrackingViewModel>();
+        builder.Services.AddSingleton<AccountViewModel>();
+        builder.Services.AddTransient<OrderHistoryViewModel>();   // ✅ NUEVO
+        builder.Services.AddTransient<AddressesViewModel>();      // ✅ NUEVO
+        builder.Services.AddTransient<NotificationsViewModel>();  // ✅ NUEVO
 
-            // 3. Registro de Vistas (Pages)
-            // Importante: Deben estar registradas para que el constructor reciba el ViewModel
-            builder.Services.AddSingleton<ProductsPage>();
-            builder.Services.AddTransient<AccountPage>();
+        // Views
+        builder.Services.AddTransient<LoginPage>();
+        builder.Services.AddTransient<ProductsPage>();
+        builder.Services.AddTransient<ProductDetailPage>();
+        builder.Services.AddTransient<CartPage>();
+        builder.Services.AddTransient<OrderTrackingPage>();
+        builder.Services.AddTransient<AccountPage>();
+        builder.Services.AddTransient<OrderHistoryPage>();        // ✅ NUEVO
+        builder.Services.AddTransient<AddressesPage>();           // ✅ NUEVO
+        builder.Services.AddTransient<NotificationsPage>();       // ✅ NUEVO
 
 #if DEBUG
-            builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
-        }
+        Instance = builder.Build();
+        return Instance;
     }
 }

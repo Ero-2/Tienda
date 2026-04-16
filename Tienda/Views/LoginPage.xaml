@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Tienda.ViewModels"
+             x:DataType="vm:LoginViewModel"
+             x:Class="Tienda.Views.LoginPage"
+             BackgroundColor="#111111"
+             NavigationPage.HasNavigationBar="False"
+             Title="Login">
+
+	<ScrollView>
+		<VerticalStackLayout Padding="32,60,32,40" Spacing="0">
+
+			<Label Text="THE DROP"
+                   TextColor="White"
+                   FontSize="34"
+                   FontAttributes="Bold"
+                   CharacterSpacing="3"
+                   HorizontalOptions="Start" />
+
+			<Label Text="NUEVA OLA · SS25"
+                   TextColor="#CCFF00"
+                   FontSize="11"
+                   CharacterSpacing="4"
+                   Margin="0,4,0,52" />
+
+			<!-- Email -->
+			<Label Text="CORREO ELECTRÓNICO"
+                   TextColor="#555555"
+                   FontSize="10"
+                   CharacterSpacing="1.5"
+                   Margin="0,0,0,6" />
+			<Border BackgroundColor="#1A1A1A"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="#2E2E2E"
+                    Padding="16,14"
+                    Margin="0,0,0,14">
+				<Entry Text="{Binding Email}"
+                       Placeholder="usuario@mail.com"
+                       PlaceholderColor="#444"
+                       TextColor="White"
+                       Keyboard="Email"
+                       BackgroundColor="Transparent" />
+			</Border>
+
+			<!-- Password -->
+			<Label Text="CONTRASEÑA"
+                   TextColor="#555555"
+                   FontSize="10"
+                   CharacterSpacing="1.5"
+                   Margin="0,0,0,6" />
+			<Border BackgroundColor="#1A1A1A"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="#2E2E2E"
+                    Padding="16,14"
+                    Margin="0,0,0,8">
+				<Entry Text="{Binding Password}"
+                       IsPassword="True"
+                       Placeholder="Mínimo 6 caracteres"
+                       PlaceholderColor="#444"
+                       TextColor="White"
+                       BackgroundColor="Transparent" />
+			</Border>
+
+			<!-- Forgot -->
+			<Label Text="¿Olvidaste tu contraseña?"
+                   TextColor="#CCFF00"
+                   FontSize="12"
+                   HorizontalOptions="End"
+                   Margin="0,0,0,24">
+				<Label.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+				</Label.GestureRecognizers>
+			</Label>
+
+			<!-- Error -->
+			<Label Text="{Binding ErrorMessage}"
+                   TextColor="#FF3E00"
+                   FontSize="12"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource NotEmptyConverter}}"
+                   Margin="0,0,0,12"
+                   HorizontalTextAlignment="Center" />
+
+			<!-- Login Button -->
+			<Border BackgroundColor="#CCFF00"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="0"
+                    Padding="0,16"
+                    Margin="0,0,0,12">
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding LoginCommand}" />
+				</Border.GestureRecognizers>
+				<Grid>
+					<ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       Color="#111111"
+                                       HorizontalOptions="Center" />
+					<Label Text="INICIAR SESIÓN"
+                           TextColor="#111111"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2"
+                           HorizontalOptions="Center"
+                           IsVisible="{Binding IsLoading, Converter={StaticResource InvertBoolConverter}}" />
+				</Grid>
+			</Border>
+
+			<!-- Divider -->
+			<Grid ColumnDefinitions="*, Auto, *" Margin="0,8" ColumnSpacing="12">
+				<BoxView Grid.Column="0" Color="#2E2E2E" HeightRequest="1" VerticalOptions="Center" />
+				<Label Grid.Column="1" Text="o" TextColor="#444444" FontSize="12" />
+				<BoxView Grid.Column="2" Color="#2E2E2E" HeightRequest="1" VerticalOptions="Center" />
+			</Grid>
+
+			<!-- Guest -->
+			<Border BackgroundColor="Transparent"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="#2E2E2E"
+                    Padding="0,14"
+                    Margin="0,8,0,36">
+				<Border.GestureRecognizers>
+					<TapGestureRecognizer Command="{Binding ContinueAsGuestCommand}" />
+				</Border.GestureRecognizers>
+				<Label Text="Continuar como invitado"
+                       TextColor="White"
+                       FontSize="13"
+                       HorizontalOptions="Center" />
+			</Border>
+
+			<!-- Register -->
+			<HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+				<Label Text="¿No tienes cuenta?" TextColor="#444444" FontSize="12" />
+				<Label Text="Regístrate"
+                       TextColor="#CCFF00"
+                       FontSize="12"
+                       FontAttributes="Bold">
+					<Label.GestureRecognizers>
+						<TapGestureRecognizer Command="{Binding GoToRegisterCommand}" />
+					</Label.GestureRecognizers>
+				</Label>
+			</HorizontalStackLayout>
+
+		</VerticalStackLayout>
+	</ScrollView>
+</ContentPage>

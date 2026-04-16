@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Tienda.ViewModels"
+             x:DataType="vm:ProductDetailViewModel"
+             x:Class="Tienda.Views.ProductDetailPage"
+             BackgroundColor="#111111"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <Grid RowDefinitions="260, *">
+
+            <!-- Hero imagen -->
+            <Grid Grid.Row="0">
+                <Image Source="{Binding Product.ImageUrl}"
+                       Aspect="AspectFill"
+                       HeightRequest="260" />
+
+                <!-- Botón regresar -->
+                <Border Grid.Row="0"
+                        BackgroundColor="#80000000"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        Margin="16,48,0,0"
+                        VerticalOptions="Start"
+                        HorizontalOptions="Start">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="←" TextColor="White" FontSize="18"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+
+                <!-- Favorito -->
+                <Border Grid.Row="0"
+                        BackgroundColor="#80000000"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        Margin="0,48,16,0"
+                        VerticalOptions="Start"
+                        HorizontalOptions="End">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleFavoriteCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{Binding IsFavorite, Converter={StaticResource FavoriteIconConverter}}"
+                           FontSize="18"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- Info -->
+            <VerticalStackLayout Grid.Row="1" Padding="22,20" Spacing="0">
+
+                <Label Text="{Binding Product.Brand}"
+                       TextColor="#CCFF00"
+                       FontSize="10"
+                       CharacterSpacing="3"
+                       Margin="0,0,0,6" />
+
+                <Label Text="{Binding Product.Name}"
+                       TextColor="White"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       CharacterSpacing="1"
+                       LineBreakMode="WordWrap"
+                       Margin="0,0,0,12" />
+
+                <!-- Precio -->
+                <HorizontalStackLayout Spacing="12" Margin="0,0,0,20">
+                    <Label Text="{Binding Product.Price, StringFormat='${0:F2}'}"
+                           TextColor="#CCFF00"
+                           FontSize="28"
+                           FontAttributes="Bold" />
+                    <Border BackgroundColor="#1ACCFF00"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="0"
+                            Padding="8,4"
+                            VerticalOptions="Center">
+                        <Label Text="-20%" TextColor="#CCFF00" FontSize="11" FontAttributes="Bold" />
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- Tallas -->
+                <Label Text="TALLA"
+                       TextColor="#555555"
+                       FontSize="10"
+                       CharacterSpacing="2"
+                       Margin="0,0,0,10" />
+
+                <CollectionView ItemsSource="{Binding AvailableSizes}"
+                                SelectionMode="Single"
+                                SelectedItem="{Binding SelectedSize}"
+                                HeightRequest="50"
+                                Margin="0,0,0,20">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Border BackgroundColor="#1E1E1E"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="1"
+                                    Stroke="#2E2E2E"
+                                    WidthRequest="44"
+                                    HeightRequest="44"
+                                    Padding="0">
+                                <Label Text="{Binding .}"
+                                       TextColor="#888888"
+                                       FontSize="12"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Descripción -->
+                <Label Text="{Binding Product.Description}"
+                       TextColor="#666666"
+                       FontSize="13"
+                       LineBreakMode="WordWrap"
+                       LineHeight="1.6"
+                       Margin="0,0,0,16" />
+
+                <!-- Stock -->
+                <HorizontalStackLayout Spacing="8" Margin="0,0,0,20">
+                    <Ellipse Fill="#CCFF00" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
+                    <Label Text="En stock · Disponible" TextColor="#CCFF00" FontSize="12" />
+                </HorizontalStackLayout>
+
+                <!-- Add to cart -->
+                <Border BackgroundColor="#CCFF00"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        Padding="0,16">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddToCartCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="+ AGREGAR AL CARRITO"
+                           TextColor="#111111"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2"
+                           HorizontalOptions="Center" />
+                </Border>
+
+            </VerticalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>

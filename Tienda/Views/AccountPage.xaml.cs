@@ -1,12 +1,25 @@
-using Microsoft.Maui.Controls;
+// Tienda/Views/AccountPage.xaml.cs
+using Tienda.ViewModels;
 
-namespace Tienda.Views
+namespace Tienda.Views;
+
+public partial class AccountPage : ContentPage
 {
-    public partial class AccountPage : ContentPage
+    private readonly AccountViewModel _viewModel;
+
+    public AccountPage(AccountViewModel viewModel)
     {
-        public AccountPage()
+        InitializeComponent();
+        BindingContext = _viewModel = viewModel;
+    }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        // ✅ Ahora accedemos a la propiedad pública IsLoggedIn
+        if (!_viewModel.IsLoggedIn)
         {
-            InitializeComponent();
+            Shell.Current.GoToAsync("///LoginPage");
         }
     }
 }
