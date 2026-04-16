@@ -10,9 +10,14 @@ namespace Tienda.Data
     {
         public DbSet<Product> Products => Set<Product>();
 
+        public AppDbContext()
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string dbPath = Path.Combine(FileSystem.AppDataDirectory, "streetwear_v10.db3");
+            // Ruta segura para guardar la DB en el celular
+            string dbPath = Path.Combine(FileSystem.AppDataDirectory, "eromode_tienda.db");
             optionsBuilder.UseSqlite($"Filename={dbPath}");
         }
     }

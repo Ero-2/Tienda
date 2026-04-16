@@ -5,6 +5,8 @@
         public AppShell()
         {
             InitializeComponent();
+            // Esto permite que Shell.Current.GoToAsync("AccountPage") funcione
+            Routing.RegisterRoute(nameof(Views.AccountPage), typeof(Views.AccountPage));
         }
     }
 }
