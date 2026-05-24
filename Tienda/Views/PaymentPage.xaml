@@ -192,7 +192,7 @@
                                TextColor="#0D0D0D" FontSize="15"
                                FontAttributes="Bold" CharacterSpacing="2.5"
                                HorizontalOptions="Center" />
-                        <Label Text="{Binding Total, StringFormat='${0:F2} MXN'}"
+                        <Label Text="{Binding Total, StringFormat='${0:F2} USD'}"
                                TextColor="#0D0D0D" FontSize="11"
                                HorizontalOptions="Center"
                                Opacity="0.6" />

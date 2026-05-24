@@ -37,11 +37,11 @@ namespace Promociones.API.Endpoints
                     descuento = req.Total * 0.05m;
                     motivo = "Descuento del 5% por compra de solo electrónicos";
                 }
-                // Regla 2: Compra superior a $1,000 MXN -> 10%
+                // Regla 2: Compra superior a $1,000 USD -> 10%
                 else if (req.Total >= 1000)
                 {
                     descuento = req.Total * 0.10m;
-                    motivo = "Descuento del 10% por compra superior a $1,000 MXN";
+                    motivo = "Descuento del 10% por compra superior a $1,000 USD";
                 }
 
                 // Manejo de responses: 200 OK con el desglose exacto
