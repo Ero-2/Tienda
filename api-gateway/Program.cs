@@ -21,14 +21,18 @@ try
                   rollingInterval: RollingInterval.Day,
                   retainedFileCountLimit: 7));
 
+    // ── Servicios ─────────────────────────────────────────────────
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddGatewayRateLimiting();
     builder.Services.AddGatewayCors(builder.Configuration);
     builder.Services.AddGatewayHealthChecks(builder.Configuration);
+    builder.Services.AddGatewaySwagger();
+    builder.Services.AddMemoryCache();
 
     builder.Services
         .AddReverseProxy()
-        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+        .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
+        .AddUserContextTransforms();  // inyecta X-User-Id / X-User-Email
 
     builder.Services.AddAuthorization(options =>
     {
@@ -41,6 +45,7 @@ try
 
     var app = builder.Build();
 
+    // ── Pipeline ──────────────────────────────────────────────────
     app.UseSerilogRequestLogging(opts =>
     {
         opts.MessageTemplate =
@@ -48,11 +53,16 @@ try
     });
 
     app.UseCors("GatewayCors");
+    app.UseMiddleware<IpBlocklistMiddleware>();      // bloqueo de IPs
     app.UseMiddleware<CorrelationIdMiddleware>();
     app.UseMiddleware<ErrorHandlingMiddleware>();
+    app.UseMiddleware<AuditLoggingMiddleware>();     // auditoría
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseRateLimiter();
+    app.UseMiddleware<ResponseCacheMiddleware>();    // cache GET /api/productos
+
+    app.UseGatewaySwagger();                        // /swagger
 
     app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
     {
