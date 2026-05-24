@@ -1,4 +1,3 @@
-﻿// Tienda/ViewModels/ProductDetailViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tienda.Models;
@@ -20,40 +19,70 @@ public partial class ProductDetailViewModel : ObservableObject
     [ObservableProperty]
     private bool isFavorite;
 
-    public List<string> AvailableSizes { get; } =
-        new() { "XS", "S", "M", "L", "XL", "XXL" };
+    // Categorías que requieren talla de ropa
+    private static readonly HashSet<string> _ropaKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "hoodie", "hoodies", "pants", "shirt", "shirts", "top", "tops",
+        "jacket", "jackets", "coat", "jeans", "shorts", "sweater", "sweaters",
+        "dress", "skirt", "blouse", "tee", "polo", "ropa", "playera",
+        "sudadera", "pantalon", "chamarra", "clothing", "apparel"
+    };
+
+    // Categorías que requieren talla de calzado
+    private static readonly HashSet<string> _calzadoKeywords = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "sneakers", "sneaker", "shoes", "shoe", "boots", "boot",
+        "sandals", "sandal", "tenis", "zapatillas", "calzado", "footwear"
+    };
+
+    public bool EsCalzado    => ContainsAny(Product?.Category, _calzadoKeywords);
+    public bool EsRopa       => !EsCalzado && ContainsAny(Product?.Category, _ropaKeywords);
+    public bool RequieresTalla => EsCalzado || EsRopa;
+    public string TallaLabel => EsCalzado ? "NÚMERO" : "TALLA";
+
+    public List<string> AvailableSizes => EsCalzado
+        ? new() { "24", "25", "26", "27", "28", "29", "30" }
+        : new() { "XS", "S", "M", "L", "XL", "XXL" };
 
     public ProductDetailViewModel(ICartService cartService)
     {
         _cartService = cartService;
     }
 
+    partial void OnProductChanged(Product? value)
+    {
+        OnPropertyChanged(nameof(EsCalzado));
+        OnPropertyChanged(nameof(EsRopa));
+        OnPropertyChanged(nameof(RequieresTalla));
+        OnPropertyChanged(nameof(TallaLabel));
+        OnPropertyChanged(nameof(AvailableSizes));
+        SelectedSize = string.Empty;
+    }
+
     [RelayCommand]
     private async Task AddToCartAsync()
     {
-        try
+        if (product is null)
         {
-            if (product is null)
-            {
-                await Shell.Current.DisplayAlert("Error", "Producto no cargado. Inténtalo de nuevo.", "OK");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(SelectedSize))
-            {
-                await Shell.Current.DisplayAlert("THE DROP", "Selecciona una talla.", "OK");
-                return;
-            }
-
-            _cartService.AddItem(product, SelectedSize, 1);
-            await Shell.Current.DisplayAlert("✓ AGREGADO",
-                $"{product.Name} · Talla {SelectedSize}", "Ver carrito");
-            await Shell.Current.GoToAsync("CartPage");
+            await Shell.Current.DisplayAlert("Error", "Producto no cargado. Inténtalo de nuevo.", "OK");
+            return;
         }
-        catch (Exception ex)
+
+        if (RequieresTalla && string.IsNullOrWhiteSpace(SelectedSize))
         {
-            await Shell.Current.DisplayAlert("Error", $"No se pudo agregar al carrito:\n{ex.Message}", "OK");
+            var tipo = EsCalzado ? "número" : "talla";
+            await Shell.Current.DisplayAlert("THE DROP", $"Selecciona un {tipo}.", "OK");
+            return;
         }
+
+        _cartService.AddItem(product, SelectedSize, 1);
+
+        var detalle = RequieresTalla
+            ? $"{product.Name} · {(EsCalzado ? "Núm." : "Talla")} {SelectedSize}"
+            : product.Name;
+
+        await Shell.Current.DisplayAlert("✓ AGREGADO", detalle, "Ver carrito");
+        await Shell.Current.GoToAsync("CartPage");
     }
 
     [RelayCommand]
@@ -62,4 +91,10 @@ public partial class ProductDetailViewModel : ObservableObject
     [RelayCommand]
     private async Task GoBackAsync() =>
         await Shell.Current.GoToAsync("..");
+
+    private static bool ContainsAny(string? value, HashSet<string> keywords)
+    {
+        if (string.IsNullOrEmpty(value)) return false;
+        return keywords.Any(k => value.Contains(k, StringComparison.OrdinalIgnoreCase));
+    }
 }

@@ -99,78 +99,80 @@
                 <!-- Divider -->
                 <BoxView Color="#1E1E1E" HeightRequest="1" Margin="0,0,0,20" />
 
-                <!-- Tallas -->
-                <Label Text="TALLA"
-                       TextColor="#505050"
-                       FontSize="9"
-                       FontAttributes="Bold"
-                       CharacterSpacing="2.5"
-                       Margin="0,0,0,10" />
+                <!-- Tallas (solo ropa/calzado) -->
+                <VerticalStackLayout IsVisible="{Binding RequieresTalla}" Spacing="0">
+                    <Label Text="{Binding TallaLabel}"
+                           TextColor="#505050"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2.5"
+                           Margin="0,0,0,10" />
 
-                <CollectionView ItemsSource="{Binding AvailableSizes}"
-                                SelectionMode="Single"
-                                SelectedItem="{Binding SelectedSize}"
-                                HeightRequest="48"
-                                Margin="0,0,0,24">
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="x:String">
-                            <Border BackgroundColor="#141414"
-                                    StrokeShape="RoundRectangle 6"
-                                    StrokeThickness="1"
-                                    Stroke="#252525"
-                                    WidthRequest="48"
+                    <CollectionView ItemsSource="{Binding AvailableSizes}"
+                                    SelectionMode="Single"
+                                    SelectedItem="{Binding SelectedSize}"
                                     HeightRequest="48"
-                                    Padding="0">
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroupList>
-                                        <VisualStateGroup x:Name="CommonStates">
-                                            <VisualState x:Name="Normal">
-                                                <VisualState.Setters>
-                                                    <Setter Property="BackgroundColor" Value="#141414" />
-                                                    <Setter Property="Stroke" Value="#252525" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                            <VisualState x:Name="Selected">
-                                                <VisualState.Setters>
-                                                    <Setter Property="BackgroundColor" Value="#CCFF00" />
-                                                    <Setter Property="Stroke" Value="#CCFF00" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                        </VisualStateGroup>
-                                    </VisualStateGroupList>
-                                </VisualStateManager.VisualStateGroups>
-                                <Label Text="{Binding .}"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center">
+                                    Margin="0,0,0,24">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Border BackgroundColor="#141414"
+                                        StrokeShape="RoundRectangle 6"
+                                        StrokeThickness="1"
+                                        Stroke="#252525"
+                                        WidthRequest="48"
+                                        HeightRequest="48"
+                                        Padding="0">
                                     <VisualStateManager.VisualStateGroups>
                                         <VisualStateGroupList>
                                             <VisualStateGroup x:Name="CommonStates">
                                                 <VisualState x:Name="Normal">
                                                     <VisualState.Setters>
-                                                        <Setter Property="TextColor" Value="#666666" />
+                                                        <Setter Property="BackgroundColor" Value="#141414" />
+                                                        <Setter Property="Stroke" Value="#252525" />
                                                     </VisualState.Setters>
                                                 </VisualState>
                                                 <VisualState x:Name="Selected">
                                                     <VisualState.Setters>
-                                                        <Setter Property="TextColor" Value="#0D0D0D" />
+                                                        <Setter Property="BackgroundColor" Value="#CCFF00" />
+                                                        <Setter Property="Stroke" Value="#CCFF00" />
                                                     </VisualState.Setters>
                                                 </VisualState>
                                             </VisualStateGroup>
                                         </VisualStateGroupList>
                                     </VisualStateManager.VisualStateGroups>
-                                </Label>
-                            </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                                    <Label Text="{Binding .}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                                        <VisualStateManager.VisualStateGroups>
+                                            <VisualStateGroupList>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="TextColor" Value="#666666" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Selected">
+                                                        <VisualState.Setters>
+                                                            <Setter Property="TextColor" Value="#0D0D0D" />
+                                                        </VisualState.Setters>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateGroupList>
+                                        </VisualStateManager.VisualStateGroups>
+                                    </Label>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
 
-                <!-- Divider -->
-                <BoxView Color="#1E1E1E" HeightRequest="1" Margin="0,0,0,20" />
+                    <!-- Divider -->
+                    <BoxView Color="#1E1E1E" HeightRequest="1" Margin="0,0,0,20" />
+                </VerticalStackLayout>
 
                 <!-- Descripción -->
                 <Label Text="{Binding Product.Description}"
