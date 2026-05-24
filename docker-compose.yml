@@ -1,0 +1,102 @@
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Admin_12345"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: Admin_12345
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  ms-ordenes:
+    build:
+      context: ./ms-ordenes
+    ports:
+      - "5001:8080"
+    environment:
+      ConnectionStrings__SqlServer: "Server=sqlserver;Database=OrdenesDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__User: admin
+      RabbitMQ__Password: Admin_12345
+    depends_on:
+      - sqlserver
+      - rabbitmq
+
+  ms-clientes:
+    build:
+      context: ./ms-clientes
+    ports:
+      - "5004:8080"
+    environment:
+      ConnectionStrings__SqlServer: "Server=sqlserver;Database=ClientesDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
+      Jwt__Secret: "T13nd4D3p4rtam3nt4l-S3cr3tK3y-2024!@#$"
+      Jwt__Issuer: "ApiGateway.TiendaDepartamental"
+      Jwt__Audience: "TiendaDepartamental.Clientes"
+    depends_on:
+      - sqlserver
+
+  ms-productos:
+    build:
+      context: ./ms-productos
+    ports:
+      - "5003:8080"
+    environment:
+      ConnectionStrings__SqlServer: "Server=sqlserver;Database=ProductosDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+
+  ms-pagos:
+    build:
+      context: ./ms-pagos
+    ports:
+      - "5002:8080"
+    environment:
+      ConnectionStrings__SqlServer: "Server=sqlserver;Database=PagosDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__User: admin
+      RabbitMQ__Password: Admin_12345
+    depends_on:
+      - sqlserver
+      - rabbitmq
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: Admin_12345
+      POSTGRES_USER: admin
+      POSTGRES_DB: PromocionesDb
+    ports:
+      - "5432:5432"
+
+  ms-envios:
+    build:
+      context: ./ms-envios
+      dockerfile: Envios.API/Dockerfile
+    ports:
+      - "5005:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EnviosDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+
+  ms-promociones:
+    build:
+      context: ./ms-promociones
+      dockerfile: Promociones.API/Dockerfile
+    ports:
+      - "5006:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=postgres;Database=PromocionesDb;Username=admin;Password=Admin_12345"
+    depends_on:
+      - postgres

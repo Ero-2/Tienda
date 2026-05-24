@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>THE DROP — Documentación del Proyecto</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #111; font-size: 13px; line-height: 1.6; }
+  .cover { background: #111; color: #fff; padding: 80px 60px; min-height: 280px; display: flex; flex-direction: column; justify-content: center; }
+  .cover h1 { font-size: 42px; letter-spacing: 6px; color: #CCFF00; margin-bottom: 8px; }
+  .cover h2 { font-size: 16px; letter-spacing: 3px; color: #888; font-weight: normal; margin-bottom: 40px; }
+  .cover .meta { font-size: 12px; color: #555; letter-spacing: 1px; }
+  .cover .meta span { color: #CCFF00; }
+
+  .toc { padding: 40px 60px; background: #f9f9f9; border-bottom: 2px solid #CCFF00; }
+  .toc h3 { font-size: 11px; letter-spacing: 3px; color: #888; margin-bottom: 16px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 6px; font-size: 13px; }
+
+  .section { padding: 40px 60px; border-bottom: 1px solid #eee; }
+  .section:last-child { border-bottom: none; }
+
+  h2.section-title { font-size: 11px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-bottom: 6px; }
+  h2.section-title span { color: #CCFF00; background: #111; padding: 2px 8px; border-radius: 4px; margin-right: 8px; }
+  h3.sub { font-size: 16px; color: #111; margin: 20px 0 10px; border-left: 3px solid #CCFF00; padding-left: 10px; }
+  h4 { font-size: 13px; color: #333; margin: 16px 0 6px; font-weight: 600; }
+
+  p { margin-bottom: 10px; color: #333; }
+
+  pre { background: #111; color: #CCFF00; padding: 16px 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre-wrap; }
+  code { background: #f0f0f0; padding: 1px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 11px; color: #c00; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+  th { background: #111; color: #CCFF00; padding: 8px 12px; text-align: left; font-size: 10px; letter-spacing: 1.5px; }
+  td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; letter-spacing: 1px; }
+  .badge-green { background: #CCFF00; color: #111; }
+  .badge-dark { background: #111; color: #CCFF00; }
+  .badge-red { background: #FF3E00; color: #fff; }
+
+  .flow { background: #111; color: #fff; border-radius: 10px; padding: 20px 24px; margin: 16px 0; font-family: 'Courier New', monospace; font-size: 12px; line-height: 2; }
+  .flow .arrow { color: #CCFF00; }
+  .flow .service { color: #fff; font-weight: bold; }
+  .flow .note { color: #666; font-style: italic; }
+
+  .card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px 20px; margin: 10px 0; }
+  .card-accent { border-left: 4px solid #CCFF00; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 12px 0; }
+
+  ul { padding-left: 20px; margin-bottom: 10px; }
+  ul li { margin-bottom: 4px; color: #333; }
+
+  @media print {
+    .section { page-break-inside: avoid; }
+    h3.sub { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover">
+  <h1>THE DROP</h1>
+  <h2>DOCUMENTACIÓN TÉCNICA DEL PROYECTO</h2>
+  <p style="color:#666; font-size:13px; margin-bottom:40px;">Arquitectura de Microservicios · .NET 8 · MAUI · RabbitMQ · OpenPay</p>
+  <div class="meta">
+    Desarrollado por <span>Erick Garcia</span> &nbsp;·&nbsp;
+    Fecha <span>Mayo 2026</span> &nbsp;·&nbsp;
+    Stack <span>.NET 8 / .NET 10 MAUI</span>
+  </div>
+</div>
+
+<!-- ÍNDICE -->
+<div class="toc">
+  <h3>CONTENIDO</h3>
+  <ol>
+    <li>Descripción general del proyecto</li>
+    <li>Arquitectura del sistema</li>
+    <li>Microservicio ms-ordenes</li>
+    <li>Microservicio ms-pagos</li>
+    <li>API Gateway (YARP)</li>
+    <li>App móvil (THE DROP — .NET MAUI)</li>
+    <li>Integración OpenPay</li>
+    <li>Infraestructura Docker</li>
+    <li>Flujo completo de una compra</li>
+    <li>Cómo levantar el proyecto</li>
+    <li>Endpoints disponibles</li>
+    <li>Tarjetas de prueba</li>
+  </ol>
+</div>
+
+<!-- 1. DESCRIPCIÓN GENERAL -->
+<div class="section">
+  <h2 class="section-title"><span>01</span>Descripción general</h2>
+  <h3 class="sub">¿Qué es THE DROP?</h3>
+  <p>THE DROP es una plataforma de e-commerce de streetwear compuesta por una aplicación móvil multiplataforma (.NET MAUI) conectada a un backend de microservicios. Permite a los usuarios explorar productos, agregar al carrito, seleccionar modalidad de pago y completar compras reales a través de la pasarela OpenPay.</p>
+
+  <div class="grid3">
+    <div class="card card-accent">
+      <strong>Frontend</strong><br/>
+      .NET 10 MAUI<br/>
+      <span style="color:#888; font-size:11px;">Android / iOS / Windows</span>
+    </div>
+    <div class="card card-accent">
+      <strong>Backend</strong><br/>
+      .NET 8 Minimal APIs<br/>
+      <span style="color:#888; font-size:11px;">2 microservicios + gateway</span>
+    </div>
+    <div class="card card-accent">
+      <strong>Infraestructura</strong><br/>
+      Docker + RabbitMQ + SQL Server<br/>
+      <span style="color:#888; font-size:11px;">Event-driven architecture</span>
+    </div>
+  </div>
+</div>
+
+<!-- 2. ARQUITECTURA -->
+<div class="section">
+  <h2 class="section-title"><span>02</span>Arquitectura del sistema</h2>
+  <h3 class="sub">Diagrama de componentes</h3>
+
+  <div class="flow">
+<span class="service">[ MAUI App ]</span>
+    <span class="arrow">↓  HTTP + JWT Bearer</span>
+<span class="service">[ API Gateway :5064 ]</span>  <span class="note">← YARP Reverse Proxy + JWT Auth + Rate Limiting</span>
+    <span class="arrow">↓ /api/ordenes → /ordenes    ↓ /api/pagos → /pagos</span>
+<span class="service">[ ms-ordenes :5001 ]</span>        <span class="service">[ ms-pagos :5002 ]</span>
+    <span class="arrow">↓ INSERT orden               ↓ INSERT pago</span>
+<span class="service">[ SQL Server — OrdenesDb ]</span>  <span class="service">[ SQL Server — PagosDb ]</span>
+    <span class="arrow">↓ Publica evento             ↓ Escucha evento</span>
+<span class="service">[ RabbitMQ :5672 ]</span>  <span class="note">Exchange: tienda.ordenes / tienda.pagos</span>
+    <span class="arrow">↓ orden.creada → ms-pagos cobra OpenPay</span>
+    <span class="arrow">↓ pago.aprobado → ms-ordenes actualiza estado</span>
+<span class="service">[ OpenPay Sandbox API ]</span>  <span class="note">https://sandbox-api.openpay.mx/v1/</span>
+  </div>
+
+  <h3 class="sub">Stack tecnológico</h3>
+  <table>
+    <tr><th>Componente</th><th>Tecnología</th><th>Versión</th></tr>
+    <tr><td>App móvil</td><td>.NET MAUI + CommunityToolkit.Mvvm</td><td>.NET 10</td></tr>
+    <tr><td>Microservicios</td><td>ASP.NET Core Minimal APIs</td><td>.NET 8</td></tr>
+    <tr><td>ORM</td><td>Entity Framework Core + SQL Server</td><td>EF Core 8</td></tr>
+    <tr><td>Mensajería</td><td>RabbitMQ (Direct Exchange)</td><td>3.x</td></tr>
+    <tr><td>API Gateway</td><td>YARP Reverse Proxy + JWT</td><td>.NET 8</td></tr>
+    <tr><td>Pasarela de pago</td><td>OpenPay Sandbox</td><td>v1</td></tr>
+    <tr><td>Contenedores</td><td>Docker + Docker Compose</td><td>—</td></tr>
+    <tr><td>Documentación API</td><td>Swagger / OpenAPI</td><td>—</td></tr>
+  </table>
+</div>
+
+<!-- 3. MS-ORDENES -->
+<div class="section">
+  <h2 class="section-title"><span>03</span>Microservicio ms-ordenes</h2>
+  <h3 class="sub">Responsabilidades</h3>
+  <ul>
+    <li>Recibir solicitudes de creación de órdenes desde el API Gateway</li>
+    <li>Aplicar reglas de descuento automático según subtotal y tipo de producto</li>
+    <li>Calcular meses sin intereses según modalidad de pago</li>
+    <li>Persistir la orden en SQL Server (esquema <code>ordenes</code>)</li>
+    <li>Publicar el evento <code>orden.creada</code> en RabbitMQ</li>
+    <li>Escuchar eventos <code>pago.aprobado</code> y <code>pago.rechazado</code> para actualizar el estado</li>
+    <li>Implementar idempotencia mediante <code>Idempotency-Key</code> header</li>
+  </ul>
+
+  <h3 class="sub">Reglas de negocio — Descuentos</h3>
+  <table>
+    <tr><th>Condición</th><th>Descuento</th></tr>
+    <tr><td>Subtotal &ge; $10,000 y productos mixtos</td><td>10%</td></tr>
+    <tr><td>Subtotal &ge; $10,000 y todos electrónicos</td><td>5%</td></tr>
+    <tr><td>Subtotal &lt; $10,000</td><td>0%</td></tr>
+  </table>
+
+  <h3 class="sub">Modalidades de pago</h3>
+  <table>
+    <tr><th>Valor</th><th>Descripción</th><th>Meses</th></tr>
+    <tr><td><code>contado</code></td><td>Pago de contado</td><td>0</td></tr>
+    <tr><td><code>3msi</code></td><td>3 meses sin intereses</td><td>3</td></tr>
+    <tr><td><code>6msi</code></td><td>6 meses sin intereses</td><td>6</td></tr>
+    <tr><td><code>12msi</code></td><td>12 meses sin intereses</td><td>12</td></tr>
+  </table>
+
+  <h3 class="sub">Endpoints</h3>
+  <table>
+    <tr><th>Método</th><th>Ruta</th><th>Descripción</th><th>Headers requeridos</th></tr>
+    <tr><td><span class="badge badge-green">POST</span></td><td><code>/ordenes</code></td><td>Crear nueva orden</td><td><code>Idempotency-Key</code></td></tr>
+    <tr><td><span class="badge badge-dark">GET</span></td><td><code>/ordenes/{id}</code></td><td>Obtener orden por ID</td><td>—</td></tr>
+    <tr><td><span class="badge badge-dark">GET</span></td><td><code>/ordenes/usuario/{usuarioId}</code></td><td>Órdenes de un usuario</td><td>—</td></tr>
+  </table>
+
+  <h3 class="sub">Estructura de base de datos</h3>
+  <div class="grid2">
+    <div class="card">
+      <strong>Tabla: ordenes.ordenes</strong>
+      <pre>Id, UsuarioId, Estado, Subtotal,
+DescuentoPct, DescuentoMonto,
+Total, ModalidadPago, MesesMsi,
+CreadoEn, ActualizadoEn</pre>
+    </div>
+    <div class="card">
+      <strong>Tabla: ordenes.items_orden</strong>
+      <pre>Id, OrdenId, ProductoId,
+NombreProducto, PrecioUnitario,
+Cantidad, Subtotal, EsElectronico</pre>
+    </div>
+  </div>
+  <div class="card">
+    <strong>Tabla: ordenes.idempotencias</strong> — Evita procesar la misma orden dos veces
+    <pre>Id, IdempotencyKey (UNIQUE), Endpoint, ResponseJson, CreadoEn</pre>
+  </div>
+
+  <h3 class="sub">Estados de una orden</h3>
+  <table>
+    <tr><th>Estado</th><th>Cuándo</th></tr>
+    <tr><td><code>pendiente</code></td><td>Orden creada, esperando respuesta de pago</td></tr>
+    <tr><td><code>confirmada</code></td><td>Pago aprobado por OpenPay</td></tr>
+    <tr><td><code>cancelada</code></td><td>Pago rechazado por OpenPay</td></tr>
+  </table>
+
+  <h3 class="sub">Eventos RabbitMQ</h3>
+  <table>
+    <tr><th>Exchange</th><th>Routing Key</th><th>Dirección</th><th>Descripción</th></tr>
+    <tr><td><code>tienda.ordenes</code></td><td><code>orden.creada</code></td><td>Publica ↗</td><td>Notifica a ms-pagos de nueva orden</td></tr>
+    <tr><td><code>tienda.pagos</code></td><td><code>pago.aprobado</code></td><td>Consume ↙</td><td>Actualiza orden a "confirmada"</td></tr>
+    <tr><td><code>tienda.pagos</code></td><td><code>pago.rechazado</code></td><td>Consume ↙</td><td>Actualiza orden a "cancelada"</td></tr>
+  </table>
+</div>
+
+<!-- 4. MS-PAGOS -->
+<div class="section">
+  <h2 class="section-title"><span>04</span>Microservicio ms-pagos</h2>
+  <h3 class="sub">Responsabilidades</h3>
+  <ul>
+    <li>Escuchar el evento <code>orden.creada</code> desde RabbitMQ</li>
+    <li>Crear un registro de pago pendiente en SQL Server</li>
+    <li>Llamar a la API de OpenPay con el token de tarjeta para procesar el cobro</li>
+    <li>Publicar <code>pago.aprobado</code> o <code>pago.rechazado</code> según resultado</li>
+    <li>Exponer endpoint para consultar pagos por orden</li>
+  </ul>
+
+  <h3 class="sub">Endpoints</h3>
+  <table>
+    <tr><th>Método</th><th>Ruta</th><th>Descripción</th></tr>
+    <tr><td><span class="badge badge-dark">GET</span></td><td><code>/pagos/orden/{ordenId}</code></td><td>Pagos de una orden</td></tr>
+  </table>
+
+  <h3 class="sub">Estructura de base de datos</h3>
+  <div class="card">
+    <strong>Tabla: pagos.pagos</strong>
+    <pre>Id, OrdenId, UsuarioId, Monto, MesesMsi, Estado,
+IdTransaccionOpenpay, ReferenciaOpenpay,
+RespuestaOpenpay (text), CreadoEn, ProcesadoEn</pre>
+  </div>
+
+  <h3 class="sub">Integración OpenPay</h3>
+  <table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Merchant ID</td><td><code>mcygu87wscna6wr5bwes</code></td></tr>
+    <tr><td>Ambiente</td><td>Sandbox</td></tr>
+    <tr><td>Base URL</td><td><code>https://sandbox-api.openpay.mx/v1/</code></td></tr>
+    <tr><td>Endpoint cobro</td><td><code>POST /{merchantId}/charges</code></td></tr>
+    <tr><td>Auth</td><td>Basic Auth con Private Key</td></tr>
+  </table>
+
+  <h3 class="sub">Body del cobro a OpenPay</h3>
+  <pre>{
+  "method": "card",
+  "source_id": "TOKEN_TARJETA",
+  "amount": 1500.00,
+  "currency": "MXN",
+  "description": "Orden #42",
+  "device_session_id": "UUID_GENERADO",
+  "payment_plan": { "payments": 3 }   // solo si es MSI
+}</pre>
+</div>
+
+<!-- 5. API GATEWAY -->
+<div class="section">
+  <h2 class="section-title"><span>05</span>API Gateway</h2>
+  <h3 class="sub">Características</h3>
+  <ul>
+    <li><strong>YARP</strong> (Yet Another Reverse Proxy) — enrutamiento hacia microservicios</li>
+    <li><strong>JWT Authentication</strong> — valida Bearer token en cada request protegido</li>
+    <li><strong>Rate Limiting</strong> — políticas: <code>public</code>, <code>authenticated</code>, <code>strict</code></li>
+    <li><strong>CORS</strong> — configurado para clientes autorizados</li>
+    <li><strong>Health Checks</strong> — monitoreo de microservicios en <code>/health</code></li>
+    <li><strong>Serilog</strong> — logging estructurado a consola y archivos</li>
+    <li><strong>Correlation ID</strong> — trazabilidad de requests entre servicios</li>
+  </ul>
+
+  <h3 class="sub">Rutas configuradas</h3>
+  <table>
+    <tr><th>Ruta entrada</th><th>Destino</th><th>Auth</th></tr>
+    <tr><td><code>GET /api/catalogo/**</code></td><td>ms-catalogo</td><td>No</td></tr>
+    <tr><td><code>POST /api/clientes/registro</code></td><td>ms-clientes</td><td>No</td></tr>
+    <tr><td><code>POST /api/clientes/login</code></td><td>ms-clientes</td><td>No</td></tr>
+    <tr><td><code>* /api/ordenes/**</code></td><td>ms-ordenes :5001</td><td>✅ JWT</td></tr>
+    <tr><td><code>* /api/pagos/**</code></td><td>ms-pagos :5002</td><td>✅ JWT</td></tr>
+  </table>
+
+  <h3 class="sub">Configuración JWT</h3>
+  <table>
+    <tr><th>Parámetro</th><th>Valor</th></tr>
+    <tr><td>Issuer</td><td><code>ApiGateway.TiendaDepartamental</code></td></tr>
+    <tr><td>Audience</td><td><code>TiendaDepartamental.Clientes</code></td></tr>
+    <tr><td>Algoritmo</td><td>HS256</td></tr>
+    <tr><td>Expiración</td><td>60 minutos</td></tr>
+  </table>
+
+  <p>El token JWT es generado directamente en la app MAUI con <code>HMACSHA256</code> usando la misma clave secreta, sin necesidad de un microservicio de autenticación adicional.</p>
+</div>
+
+<!-- 6. APP MAUI -->
+<div class="section">
+  <h2 class="section-title"><span>06</span>App móvil — THE DROP (.NET MAUI)</h2>
+  <h3 class="sub">Vistas implementadas</h3>
+  <table>
+    <tr><th>Vista</th><th>ViewModel</th><th>Descripción</th></tr>
+    <tr><td>LoginPage</td><td>LoginViewModel</td><td>Inicio de sesión / invitado / registro</td></tr>
+    <tr><td>RegisterPage</td><td>LoginViewModel</td><td>Registro de nueva cuenta</td></tr>
+    <tr><td>ProductsPage</td><td>ProductsViewModel</td><td>Catálogo con búsqueda y filtros</td></tr>
+    <tr><td>ProductDetailPage</td><td>ProductDetailViewModel</td><td>Detalle del producto, tallas, agregar al carrito</td></tr>
+    <tr><td>CartPage</td><td>CartViewModel</td><td>Carrito, modalidad de pago, confirmar</td></tr>
+    <tr><td>PaymentPage</td><td>PaymentViewModel</td><td>Formulario de tarjeta + tokenización OpenPay</td></tr>
+    <tr><td>OrderTrackingPage</td><td>OrderTrackingViewModel</td><td>Seguimiento de la orden con timeline</td></tr>
+    <tr><td>OrderHistoryPage</td><td>OrderHistoryViewModel</td><td>Historial de órdenes del usuario (API real)</td></tr>
+    <tr><td>AccountPage</td><td>AccountViewModel</td><td>Perfil, stats, menú de navegación</td></tr>
+    <tr><td>AddressesPage</td><td>AddressesViewModel</td><td>Direcciones guardadas</td></tr>
+    <tr><td>NotificationsPage</td><td>NotificationsViewModel</td><td>Notificaciones de drops</td></tr>
+  </table>
+
+  <h3 class="sub">Servicios implementados</h3>
+  <table>
+    <tr><th>Interfaz</th><th>Implementación</th><th>Descripción</th></tr>
+    <tr><td><code>IAuthService</code></td><td><code>AuthService</code></td><td>Login, logout, generación JWT con HMACSHA256</td></tr>
+    <tr><td><code>ICartService</code></td><td><code>CartService</code></td><td>Carrito en memoria (singleton)</td></tr>
+    <tr><td><code>IOrdenService</code></td><td><code>OrdenService</code></td><td>HTTP client → API Gateway → ms-ordenes</td></tr>
+    <tr><td><code>IOpenPayTokenService</code></td><td><code>OpenPayTokenService</code></td><td>Tokenización de tarjeta con OpenPay public key</td></tr>
+  </table>
+
+  <h3 class="sub">Patrón de arquitectura</h3>
+  <p>La app implementa el patrón <strong>MVVM</strong> (Model-View-ViewModel) usando <strong>CommunityToolkit.Mvvm</strong>:</p>
+  <ul>
+    <li><code>[ObservableProperty]</code> — genera propiedades con notificación automática</li>
+    <li><code>[RelayCommand]</code> — genera comandos ICommand desde métodos</li>
+    <li><code>[QueryProperty]</code> — recibe parámetros de navegación Shell</li>
+    <li>Inyección de dependencias vía <code>MauiProgram.cs</code></li>
+  </ul>
+
+  <h3 class="sub">Converters implementados</h3>
+  <table>
+    <tr><th>Converter</th><th>Uso</th></tr>
+    <tr><td><code>NotEmptyConverter</code></td><td>Visibilidad de mensajes de error / badges</td></tr>
+    <tr><td><code>InvertBoolConverter</code></td><td>IsVisible cuando IsLoading es false</td></tr>
+    <tr><td><code>FavoriteIconConverter</code></td><td>Ícono ♡/♥ en detalle de producto</td></tr>
+    <tr><td><code>StepColorConverter</code></td><td>Color del paso en timeline de tracking</td></tr>
+    <tr><td><code>StepIconConverter</code></td><td>Ícono ✓/●/○ del paso en timeline</td></tr>
+    <tr><td><code>StepLineColorConverter</code></td><td>Color de línea entre pasos</td></tr>
+    <tr><td><code>StepTextColorConverter</code></td><td>Color del título del paso</td></tr>
+    <tr><td><code>StepSubtextColorConverter</code></td><td>Color del subtítulo del paso</td></tr>
+  </table>
+</div>
+
+<!-- 7. INTEGRACIÓN OPENPAY -->
+<div class="section">
+  <h2 class="section-title"><span>07</span>Integración OpenPay</h2>
+  <h3 class="sub">Flujo de tokenización (MAUI → OpenPay)</h3>
+  <pre>POST https://sandbox-api.openpay.mx/v1/mcygu87wscna6wr5bwes/tokens
+Authorization: Basic base64(public_key:)
+Content-Type: application/json
+
+{
+  "card_number":      "4111111111111111",
+  "holder_name":      "JUAN PEREZ",
+  "expiration_month": "12",
+  "expiration_year":  "26",
+  "cvv2":             "110"
+}
+
+Respuesta: { "id": "tok_xxxxxxxxxx", ... }</pre>
+
+  <h3 class="sub">Flujo de cobro (ms-pagos → OpenPay)</h3>
+  <pre>POST https://sandbox-api.openpay.mx/v1/mcygu87wscna6wr5bwes/charges
+Authorization: Basic base64(private_key:)
+Content-Type: application/json
+
+{
+  "method":            "card",
+  "source_id":         "tok_xxxxxxxxxx",
+  "amount":            1500.00,
+  "currency":          "MXN",
+  "description":       "Orden #42",
+  "device_session_id": "uuid-generado",
+  "payment_plan":      { "payments": 3 }
+}</pre>
+
+  <h3 class="sub">Credenciales sandbox</h3>
+  <table>
+    <tr><th>Campo</th><th>Valor</th></tr>
+    <tr><td>Merchant ID</td><td><code>mcygu87wscna6wr5bwes</code></td></tr>
+    <tr><td>Public Key (tokenización)</td><td><code>pk_df4e4734ad1245358618d303e0572ea5</code></td></tr>
+    <tr><td>Private Key (cobros)</td><td><code>sk_2e9731beeaf04d63b0fefb4f23d733e9</code></td></tr>
+  </table>
+</div>
+
+<!-- 8. DOCKER -->
+<div class="section">
+  <h2 class="section-title"><span>08</span>Infraestructura Docker</h2>
+  <h3 class="sub">Servicios en docker-compose.yml</h3>
+  <table>
+    <tr><th>Servicio</th><th>Imagen</th><th>Puerto</th></tr>
+    <tr><td>sqlserver</td><td>mcr.microsoft.com/mssql/server:2022-latest</td><td>1433</td></tr>
+    <tr><td>rabbitmq</td><td>rabbitmq:3-management</td><td>5672, 15672</td></tr>
+    <tr><td>ms-ordenes</td><td>Build local desde Dockerfile</td><td>5001</td></tr>
+    <tr><td>ms-pagos</td><td>Build local desde Dockerfile</td><td>5002</td></tr>
+  </table>
+
+  <h3 class="sub">Variables de entorno</h3>
+  <pre>ms-ordenes:
+  ConnectionStrings__SqlServer: "Server=sqlserver;Database=OrdenesDb;..."
+  RabbitMQ__Host: rabbitmq
+  RabbitMQ__Port: 5672
+  RabbitMQ__User: admin
+  RabbitMQ__Password: Admin_12345
+
+ms-pagos:
+  ConnectionStrings__SqlServer: "Server=sqlserver;Database=PagosDb;..."
+  RabbitMQ__Host: rabbitmq
+  OpenPay__MerchantId: mcygu87wscna6wr5bwes
+  OpenPay__PrivateKey: sk_2e9731beeaf04d63b0fefb4f23d733e9</pre>
+</div>
+
+<!-- 9. FLUJO COMPLETO -->
+<div class="section">
+  <h2 class="section-title"><span>09</span>Flujo completo de una compra</h2>
+
+  <div class="flow">
+1. Usuario abre la app y hace login (se genera JWT con HMACSHA256)
+2. Explora productos (cargados desde SQLite local)
+3. Agrega productos al carrito (ICartService en memoria)
+4. En CartPage selecciona modalidad de pago y presiona CONFIRMAR
+5. Navega a PaymentPage → ingresa datos de tarjeta
+
+6. <span class="arrow">→</span> OpenPayTokenService llama POST /tokens con public key
+   <span class="arrow">←</span> OpenPay devuelve card_token
+
+7. <span class="arrow">→</span> OrdenService llama POST /api/ordenes al API Gateway
+     Header: Authorization: Bearer JWT
+     Header: Idempotency-Key: UUID
+     Body: { usuarioId, modalidadPago, cardToken, items[] }
+
+8. <span class="arrow">→</span> API Gateway valida JWT → rutea a ms-ordenes :5001/ordenes
+
+9. ms-ordenes:
+   - Verifica idempotencia (evita duplicados)
+   - Calcula descuentos según reglas de negocio
+   - Inserta en ordenes.ordenes con estado "pendiente"
+   - Publica OrdenCreadaEvent en RabbitMQ (tienda.ordenes → orden.creada)
+
+10. ms-pagos recibe OrdenCreadaEvent:
+    - Crea registro de pago "pendiente" en pagos.pagos
+    - Llama POST /charges a OpenPay con card_token y private_key
+    - Si aprobado: actualiza pago a "aprobado", publica pago.aprobado
+    - Si rechazado: actualiza pago a "rechazado", publica pago.rechazado
+
+11. ms-ordenes recibe evento:
+    - pago.aprobado → orden.Estado = "confirmada"
+    - pago.rechazado → orden.Estado = "cancelada"
+
+12. App navega a OrderTrackingPage con el ID de orden real (#42)
+  </div>
+</div>
+
+<!-- 10. LEVANTAR -->
+<div class="section">
+  <h2 class="section-title"><span>10</span>Cómo levantar el proyecto</h2>
+
+  <h3 class="sub">Prerrequisitos</h3>
+  <ul>
+    <li>Docker Desktop instalado y corriendo</li>
+    <li>.NET 8 SDK (para el API Gateway)</li>
+    <li>Visual Studio 2022+ con workload MAUI</li>
+  </ul>
+
+  <h3 class="sub">Pasos</h3>
+  <div class="card card-accent">
+    <strong>Terminal 1 — Microservicios</strong>
+    <pre>cd C:\Users\eroer\Desktop\ProyectoMovil
+docker compose up --build</pre>
+  </div>
+  <div class="card card-accent">
+    <strong>Terminal 2 — API Gateway</strong>
+    <pre>cd C:\Users\eroer\Desktop\ProyectoMovil\ProyectoMovil\ApiGateway
+dotnet run</pre>
+  </div>
+  <div class="card card-accent">
+    <strong>Visual Studio — App MAUI</strong>
+    <pre>Abrir: C:\Users\eroer\source\repos\Tienda\Tienda.slnx
+Seleccionar target: Windows o Android Emulator
+Presionar F5</pre>
+  </div>
+
+  <h3 class="sub">URLs disponibles</h3>
+  <table>
+    <tr><th>Servicio</th><th>URL</th></tr>
+    <tr><td>API Gateway</td><td><code>http://localhost:5064</code></td></tr>
+    <tr><td>ms-ordenes Swagger</td><td><code>http://localhost:5001/swagger</code></td></tr>
+    <tr><td>ms-pagos Swagger</td><td><code>http://localhost:5002/swagger</code></td></tr>
+    <tr><td>RabbitMQ Management</td><td><code>http://localhost:15672</code> (admin / Admin_12345)</td></tr>
+  </table>
+</div>
+
+<!-- 11. ENDPOINTS -->
+<div class="section">
+  <h2 class="section-title"><span>11</span>Endpoints disponibles</h2>
+
+  <h3 class="sub">Via API Gateway (requieren JWT)</h3>
+  <table>
+    <tr><th>Método</th><th>Ruta</th><th>Descripción</th></tr>
+    <tr><td><span class="badge badge-green">POST</span></td><td><code>/api/ordenes</code></td><td>Crear orden</td></tr>
+    <tr><td><span class="badge badge-dark">GET</span></td><td><code>/api/ordenes/{id}</code></td><td>Obtener orden por ID</td></tr>
+    <tr><td><span class="badge badge-dark">GET</span></td><td><code>/api/ordenes/usuario/{id}</code></td><td>Órdenes del usuario</td></tr>
+    <tr><td><span class="badge badge-dark">GET</span></td><td><code>/api/pagos/orden/{ordenId}</code></td><td>Pagos de una orden</td></tr>
+  </table>
+
+  <h3 class="sub">Body — Crear orden</h3>
+  <pre>{
+  "usuarioId": 1,
+  "modalidadPago": "3msi",
+  "cardToken": "tok_xxxxxxxxxx",
+  "items": [
+    {
+      "productoId": 1,
+      "nombreProducto": "OVERSIZED TECH HOODIE V2",
+      "precioUnitario": 115.00,
+      "cantidad": 2,
+      "esElectronico": false
+    }
+  ]
+}</pre>
+</div>
+
+<!-- 12. TARJETAS DE PRUEBA -->
+<div class="section">
+  <h2 class="section-title"><span>12</span>Tarjetas de prueba — OpenPay Sandbox</h2>
+  <table>
+    <tr><th>Número</th><th>Resultado</th><th>Código error</th></tr>
+    <tr><td><code>4111111111111111</code></td><td><span class="badge badge-green">APROBADA</span></td><td>—</td></tr>
+    <tr><td><code>4000000000000002</code></td><td><span class="badge badge-red">DECLINADA</span></td><td>3001 — Tarjeta declinada</td></tr>
+    <tr><td><code>4000000000000010</code></td><td><span class="badge badge-red">DECLINADA</span></td><td>3002 — Fondos insuficientes</td></tr>
+    <tr><td><code>4000000000000028</code></td><td><span class="badge badge-red">DECLINADA</span></td><td>3004 — Tarjeta robada</td></tr>
+  </table>
+  <p style="color:#888; font-size:11px; margin-top:8px;">Usar cualquier fecha de expiración futura, CVV de 3 dígitos y nombre cualquiera.</p>
+</div>
+
+<div style="background:#111; color:#555; text-align:center; padding:30px; font-size:11px; letter-spacing:2px;">
+  THE DROP &nbsp;·&nbsp; PROYECTO MÓVIL &nbsp;·&nbsp; ERICK GARCIA &nbsp;·&nbsp; 2026
+</div>
+
+</body>
+</html>
