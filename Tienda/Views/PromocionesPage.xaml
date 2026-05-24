@@ -162,7 +162,7 @@
                                        HorizontalOptions="Center" VerticalOptions="Center" />
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                <Label Text="Compra mayor a $10,000 → 10% OFF"
+                                <Label Text="Compra mayor a $1,000 → 10% OFF"
                                        TextColor="White" FontSize="13" FontAttributes="Bold" />
                                 <Label Text="Descuento automático al superar el monto"
                                        TextColor="#555555" FontSize="11" />

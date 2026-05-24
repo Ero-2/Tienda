@@ -25,7 +25,7 @@ public class OrdenService
         decimal descuentoPct = 0;
         bool todosElectronicos = request.Items.All(i => i.EsElectronico);
 
-        if (subtotal >= 10000)
+        if (subtotal >= 1000)
         {
             descuentoPct = todosElectronicos ? 5 : 10;
         }
