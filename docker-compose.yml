@@ -100,3 +100,20 @@ services:
       ConnectionStrings__DefaultConnection: "Host=postgres;Database=PromocionesDb;Username=admin;Password=Admin_12345"
     depends_on:
       - postgres
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "5000:8080"
+    environment:
+      Jwt__SecretKey: "T13nd4D3p4rtam3nt4l-S3cr3tK3y-2024!@#$"
+      Jwt__Issuer: "ApiGateway.TiendaDepartamental"
+      Jwt__Audience: "TiendaDepartamental.Clientes"
+    depends_on:
+      - ms-clientes
+      - ms-productos
+      - ms-ordenes
+      - ms-pagos
+      - ms-envios
+      - ms-promociones

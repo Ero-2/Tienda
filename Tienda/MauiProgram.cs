@@ -32,40 +32,15 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppDbContext>();
         builder.Services.AddSingleton<ICartService, CartService>();
 
-        // ms-clientes (auth + direcciones)
-        builder.Services.AddHttpClient<IAuthService, AuthService>(client =>
-        {
-            client.BaseAddress = new Uri($"{host}:5004");
-        });
+        // Todos los servicios van por el API Gateway (:5000)
+        var gatewayUri = new Uri($"{host}:5000");
 
-        builder.Services.AddHttpClient<IClienteService, ClienteService>(client =>
-        {
-            client.BaseAddress = new Uri($"{host}:5004");
-        });
-
-        // ms-ordenes
-        builder.Services.AddHttpClient<IOrdenService, OrdenService>(client =>
-        {
-            client.BaseAddress = new Uri($"{host}:5001");
-        });
-
-        // ms-productos
-        builder.Services.AddHttpClient<IProductoService, ProductoService>(client =>
-        {
-            client.BaseAddress = new Uri($"{host}:5003");
-        });
-
-        // ms-envios
-        builder.Services.AddHttpClient<IEnvioService, EnvioService>(client =>
-        {
-            client.BaseAddress = new Uri($"{host}:5005");
-        });
-
-        // ms-promociones
-        builder.Services.AddHttpClient<IPromocionService, PromocionService>(client =>
-        {
-            client.BaseAddress = new Uri($"{host}:5006");
-        });
+        builder.Services.AddHttpClient<IAuthService, AuthService>(c => c.BaseAddress = gatewayUri);
+        builder.Services.AddHttpClient<IClienteService, ClienteService>(c => c.BaseAddress = gatewayUri);
+        builder.Services.AddHttpClient<IOrdenService, OrdenService>(c => c.BaseAddress = gatewayUri);
+        builder.Services.AddHttpClient<IProductoService, ProductoService>(c => c.BaseAddress = gatewayUri);
+        builder.Services.AddHttpClient<IEnvioService, EnvioService>(c => c.BaseAddress = gatewayUri);
+        builder.Services.AddHttpClient<IPromocionService, PromocionService>(c => c.BaseAddress = gatewayUri);
 
         // OpenPay (tokenización)
         builder.Services.AddSingleton<IOpenPayTokenService, OpenPayTokenService>();
