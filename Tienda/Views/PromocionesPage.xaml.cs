@@ -10,6 +10,13 @@ public partial class PromocionesPage : ContentPage
         BindingContext = vm;
     }
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (BindingContext is PromocionesViewModel vm)
+            vm.LoadCommand.Execute(null);
+    }
+
     private async void OnBackTapped(object sender, EventArgs e) =>
         await Shell.Current.GoToAsync("..");
 }

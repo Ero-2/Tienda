@@ -8,14 +8,6 @@
              BackgroundColor="#0D0D0D"
              NavigationPage.HasNavigationBar="False">
 
-    <ContentPage.Triggers>
-        <EventTrigger Event="Appearing">
-            <EventTrigger.Actions>
-                <InvokeCommandAction Command="{Binding LoadCommand}" />
-            </EventTrigger.Actions>
-        </EventTrigger>
-    </ContentPage.Triggers>
-
     <Grid RowDefinitions="Auto, *">
 
         <!-- Header -->
