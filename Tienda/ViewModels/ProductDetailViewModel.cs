@@ -24,7 +24,7 @@ public partial class ProductDetailViewModel : ObservableObject
     {
         "hoodie", "hoodies", "pants", "shirt", "shirts", "top", "tops",
         "jacket", "jackets", "coat", "jeans", "shorts", "sweater", "sweaters",
-        "dress", "skirt", "blouse", "tee", "polo", "ropa", "playera",
+        "dress", "dresses", "skirt", "blouse", "tee", "polo", "ropa", "playera",
         "sudadera", "pantalon", "chamarra", "clothing", "apparel"
     };
 
@@ -95,6 +95,8 @@ public partial class ProductDetailViewModel : ObservableObject
     private static bool ContainsAny(string? value, HashSet<string> keywords)
     {
         if (string.IsNullOrEmpty(value)) return false;
-        return keywords.Any(k => value.Contains(k, StringComparison.OrdinalIgnoreCase));
+        // Split en palabras para evitar falsos positivos (ej: "laptops" contiene "top")
+        var words = value.Split(new[] { '-', ' ', '_', '/' }, StringSplitOptions.RemoveEmptyEntries);
+        return words.Any(w => keywords.Contains(w));
     }
 }
