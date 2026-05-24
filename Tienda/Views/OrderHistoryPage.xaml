@@ -5,80 +5,125 @@
              xmlns:models="clr-namespace:Tienda.Models"
              x:DataType="vm:OrderHistoryViewModel"
              x:Class="Tienda.Views.OrderHistoryPage"
-             BackgroundColor="#111111"
+             BackgroundColor="#0D0D0D"
              NavigationPage.HasNavigationBar="False"
              Title="Historial">
 
-	<Grid RowDefinitions="Auto, *">
+    <Grid RowDefinitions="Auto, *">
 
-		<!-- Header -->
-		<VerticalStackLayout Grid.Row="0" Padding="20,16,20,8" Spacing="4">
-			<Label Text="HISTORIAL DE COMPRAS"
-                   TextColor="White"
-                   FontSize="22"
-                   FontAttributes="Bold"
-                   CharacterSpacing="2" />
-			<BoxView HeightRequest="3" WidthRequest="70"
-                     Color="#CCFF00" HorizontalOptions="Start" />
-		</VerticalStackLayout>
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,20,20,16" ColumnDefinitions="Auto, *" ColumnSpacing="14">
+            <Border Grid.Column="0"
+                    BackgroundColor="#141414"
+                    StrokeShape="RoundRectangle 6"
+                    StrokeThickness="1"
+                    Stroke="#222222"
+                    WidthRequest="40" HeightRequest="40">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Border.GestureRecognizers>
+                <Label Text="←" TextColor="White" FontSize="18"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                <Label Text="MIS PEDIDOS"
+                       TextColor="White"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       CharacterSpacing="2.5" />
+                <BoxView HeightRequest="2" WidthRequest="40" Color="#CCFF00" HorizontalOptions="Start" />
+            </VerticalStackLayout>
+        </Grid>
 
-		<!-- Lista de pedidos -->
-		<CollectionView Grid.Row="1"
+        <!-- Loading -->
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsLoading}"
+                           IsVisible="{Binding IsLoading}"
+                           Color="#CCFF00"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+
+        <!-- Lista -->
+        <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Orders}"
-                        Margin="16,8,16,16">
-			<CollectionView.EmptyView>
-				<Label Text="No hay pedidos aún."
-                       TextColor="#666666"
-                       FontSize="14"
-                       HorizontalOptions="Center"
-                       Margin="0,60,0,0" />
-			</CollectionView.EmptyView>
+                        Margin="16,4,16,16"
+                        IsVisible="{Binding IsLoading, Converter={StaticResource InvertBoolConverter}}">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
+                                     Spacing="12" Margin="0,60,0,0">
+                    <Label Text="—"
+                           TextColor="#CCFF00"
+                           FontSize="32"
+                           FontAttributes="Bold"
+                           CharacterSpacing="6"
+                           HorizontalOptions="Center" />
+                    <Label Text="SIN PEDIDOS AÚN"
+                           TextColor="#3A3A3A"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           CharacterSpacing="3"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
 
-			<CollectionView.ItemTemplate>
-				<DataTemplate x:DataType="models:Order">
-					<Border BackgroundColor="#1E1E1E"
-                            StrokeShape="RoundRectangle 12"
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Order">
+                    <Border BackgroundColor="#111111"
+                            StrokeShape="RoundRectangle 0"
                             StrokeThickness="0"
-                            Padding="16,14"
-                            Margin="0,0,0,12">
-						<VerticalStackLayout Spacing="6">
+                            Padding="18,18"
+                            Margin="0,0,0,2">
 
-							<!-- ID + Fecha -->
-							<HorizontalStackLayout Spacing="8">
-								<Label Text="{Binding Id}"
-                                       TextColor="#CCFF00"
-                                       FontSize="14"
-                                       FontAttributes="Bold" />
-								<Label Text="·" TextColor="#555555" FontSize="14" />
-								<Label Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}"
-                                       TextColor="#666666"
-                                       FontSize="12"
-                                       VerticalOptions="Center" />
-							</HorizontalStackLayout>
+                        <!-- Línea accent izquierda -->
+                        <Grid ColumnDefinitions="3, *" ColumnSpacing="16">
+                            <BoxView Grid.Column="0" Color="#CCFF00"
+                                     VerticalOptions="Fill" />
+                            <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="12">
 
-							<!-- Total -->
-							<Label Text="{Binding Total, StringFormat='Total: ${0:F2}'}"
-                                   TextColor="White"
-                                   FontSize="14" />
+                                <!-- ID + Fecha -->
+                                <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Id}"
+                                           TextColor="White"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           CharacterSpacing="0.5" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Date, StringFormat='{0:dd MMM yyyy}'}"
+                                           TextColor="#404040"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center" />
+                                </Grid>
 
-							<!-- Status -->
-							<Border BackgroundColor="#1ACCFF00"
-                                    StrokeShape="RoundRectangle 6"
-                                    StrokeThickness="0"
-                                    Padding="8,4"
-                                    HorizontalOptions="Start">
-								<Label Text="{Binding Status}"
-                                       TextColor="#CCFF00"
-                                       FontSize="11"
-                                       FontAttributes="Bold"
-                                       CharacterSpacing="1" />
-							</Border>
+                                <!-- Total + Status -->
+                                <Grid Grid.Row="1" ColumnDefinitions="*, Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Total, StringFormat='${0:F2}'}"
+                                           TextColor="#CCFF00"
+                                           FontSize="20"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center" />
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#0A1A00"
+                                            StrokeShape="RoundRectangle 20"
+                                            StrokeThickness="1"
+                                            Stroke="#1A3A00"
+                                            Padding="12,5">
+                                        <Label Text="{Binding Status}"
+                                               TextColor="#CCFF00"
+                                               FontSize="9"
+                                               FontAttributes="Bold"
+                                               CharacterSpacing="1.5" />
+                                    </Border>
+                                </Grid>
 
-						</VerticalStackLayout>
-					</Border>
-				</DataTemplate>
-			</CollectionView.ItemTemplate>
-		</CollectionView>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-	</Grid>
+    </Grid>
 </ContentPage>

@@ -1,13 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:Tienda"
+             xmlns:helpers="clr-namespace:Tienda.Helpers"
              x:Class="Tienda.App">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <!-- Puedes añadir estilos globales aquí si los tienes -->
-            </ResourceDictionary.MergedDictionaries>
+            <helpers:NotEmptyConverter       x:Key="NotEmptyConverter" />
+            <helpers:InvertBoolConverter     x:Key="InvertBoolConverter" />
+            <helpers:FavoriteIconConverter   x:Key="FavoriteIconConverter" />
+            <helpers:StepColorConverter      x:Key="StepColorConverter" />
+            <helpers:StepIconConverter       x:Key="StepIconConverter" />
+            <helpers:StepLineColorConverter  x:Key="StepLineColorConverter" />
+            <helpers:StepTextColorConverter  x:Key="StepTextColorConverter" />
+            <helpers:StepSubtextColorConverter  x:Key="StepSubtextColorConverter" />
+            <helpers:BoolToColorConverter        x:Key="BoolToColorConverter" />
+            <helpers:BoolToOpacityConverter     x:Key="BoolToOpacityConverter" />
+            <helpers:NotZeroConverter           x:Key="NotZeroConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

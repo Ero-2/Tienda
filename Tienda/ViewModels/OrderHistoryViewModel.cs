@@ -1,58 +1,63 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Tienda.Models;
+using Tienda.Services;
 
 namespace Tienda.ViewModels;
 
 public partial class OrderHistoryViewModel : ObservableObject
 {
+    private readonly IOrdenService _ordenService;
+
     [ObservableProperty]
     private ObservableCollection<Order> orders = new();
 
     [ObservableProperty]
     private bool isEmpty = true;
 
-    public OrderHistoryViewModel()
+    [ObservableProperty]
+    private bool isLoading = false;
+
+    public OrderHistoryViewModel(IOrdenService ordenService)
     {
-        LoadOrders();
+        _ordenService = ordenService;
     }
 
-    // ❌ ELIMINADO: Estas líneas causaban el error porque [ObservableProperty] ya las genera.
-    // public ObservableCollection<Order> Orders { get; private set; }
-    // public bool IsEmpty { get; private set; }
-
-    private void LoadOrders()
+    [RelayCommand]
+    public async Task LoadOrdersAsync()
     {
-        // ✅ Al usar 'Orders', estás usando la propiedad generada automáticamente
-        Orders = new ObservableCollection<Order>
+        IsLoading = true;
+        try
         {
-            new Order
-            {
-                Id = "#ORD-001",
-                Date = DateTime.Now.AddDays(-3),
-                Total = 299.99m,
-                Status = "ENTREGADO",
-                Items = new List<CartItem>()
-            },
-            new Order
-            {
-                Id = "#ORD-002",
-                Date = DateTime.Now.AddDays(-10),
-                Total = 549.00m,
-                Status = "EN CAMINO",
-                Items = new List<CartItem>()
-            },
-            new Order
-            {
-                Id = "#ORD-003",
-                Date = DateTime.Now.AddDays(-21),
-                Total = 189.50m,
-                Status = "ENTREGADO",
-                Items = new List<CartItem>()
-            }
-        };
-
-        // ✅ Al usar 'IsEmpty', estás usando la propiedad generada automáticamente
-        IsEmpty = Orders.Count == 0;
+            var resultado = await _ordenService.ObtenerMisOrdenesAsync();
+            Orders = new ObservableCollection<Order>(
+                resultado.Select(o => new Order
+                {
+                    Id     = $"#{o.Id}",
+                    Date   = o.CreadoEn,
+                    Total  = o.Total,
+                    Status = MapEstado(o.Estado),
+                    Items  = new List<CartItem>()
+                })
+            );
+            IsEmpty = Orders.Count == 0;
+        }
+        catch
+        {
+            IsEmpty = true;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
+
+    private static string MapEstado(string estado) => estado switch
+    {
+        "confirmada" => "CONFIRMADA",
+        "cancelada"  => "CANCELADA",
+        "pendiente"  => "PROCESANDO",
+        _            => estado.ToUpper()
+    };
 }

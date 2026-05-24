@@ -16,6 +16,7 @@ public partial class ProductsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _viewModel.RefreshCartCount();
         await _viewModel.LoadProductsCommand.ExecuteAsync(null);
     }
 }

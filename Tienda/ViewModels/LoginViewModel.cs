@@ -1,7 +1,6 @@
-﻿// Tienda/ViewModels/LoginViewModel.cs
+// Tienda/ViewModels/LoginViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Xml.Linq;
 using Tienda.Services;
 
 namespace Tienda.ViewModels;
@@ -12,86 +11,67 @@ public partial class LoginViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RegisterCommand))]
     private string email = string.Empty;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RegisterCommand))]
     private string password = string.Empty;
 
-    // ✅ Propiedad adicional para RegisterPage
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RegisterCommand))]
     private string name = string.Empty;
 
-    [ObservableProperty]
-    private bool isLoading;
-
-    [ObservableProperty]
-    private string errorMessage = string.Empty;
+    [ObservableProperty] private bool   isLoading;
+    [ObservableProperty] private string errorMessage = string.Empty;
 
     public LoginViewModel(IAuthService authService)
     {
         _authService = authService;
     }
 
-    // ✅ Método CanLogin actualizado para incluir Name
     private bool CanLogin() =>
         !string.IsNullOrWhiteSpace(Email) &&
         !string.IsNullOrWhiteSpace(Password) &&
         Password.Length >= 6 &&
         Email.Contains('@');
 
-    // ✅ Método CanRegister para el comando de registro
     private bool CanRegister() =>
+        !string.IsNullOrWhiteSpace(Name) &&
         !string.IsNullOrWhiteSpace(Email) &&
         !string.IsNullOrWhiteSpace(Password) &&
-        !string.IsNullOrWhiteSpace(Name) && // ✅ Requiere Nombre
         Password.Length >= 6 &&
         Email.Contains('@');
 
     [RelayCommand(CanExecute = nameof(CanLogin))]
     private async Task LoginAsync()
     {
-        IsLoading = true;
+        IsLoading    = true;
         ErrorMessage = string.Empty;
 
-        await Task.Delay(1200); // Simula llamada a API
+        var (success, error) = await _authService.LoginAsync(Email, Password);
 
-        // Lógica real: reemplaza con tu AuthService
-        if (Email == "demo@thedrop.mx" && Password == "drop2025")
-        {
-            _authService.Login(Email);
+        if (success)
             await Shell.Current.GoToAsync("///ProductsPage");
-        }
         else
-        {
-            ErrorMessage = "Credenciales incorrectas. Intenta de nuevo.";
-        }
+            ErrorMessage = error ?? "Error al iniciar sesión";
 
         IsLoading = false;
     }
 
-    // ✅ Nuevo comando RegisterCommand
     [RelayCommand(CanExecute = nameof(CanRegister))]
     private async Task RegisterAsync()
     {
-        IsLoading = true;
+        IsLoading    = true;
         ErrorMessage = string.Empty;
 
-        await Task.Delay(1200); // Simula proceso de registro
+        var (success, error) = await _authService.RegisterAsync(Name, Email, Password);
 
-        // Lógica de registro simulado
-        if (Email.Contains("@") && Password.Length >= 6 && !string.IsNullOrWhiteSpace(Name))
-        {
-            // Aquí iría la lógica real de registro (API, BD, etc.)
-            // Por ahora, simulamos éxito: creamos sesión y vamos a ProductsPage
-            _authService.Login(Email); // Considera si quieres hacer login automático o pedir login después
+        if (success)
             await Shell.Current.GoToAsync("///ProductsPage");
-        }
         else
-        {
-            ErrorMessage = "Datos inválidos. Por favor, revisa nombre, correo y contraseña.";
-        }
+            ErrorMessage = error ?? "Error al registrarse";
 
         IsLoading = false;
     }
@@ -101,17 +81,17 @@ public partial class LoginViewModel : ObservableObject
         await Shell.Current.GoToAsync("RegisterPage");
 
     [RelayCommand]
+    private async Task GoToLoginAsync() =>
+        await Shell.Current.GoToAsync("..");
+
+    [RelayCommand]
     private async Task ContinueAsGuestAsync()
     {
+        _authService.LoginAsGuest("invitado@thedrop.mx");
         await Shell.Current.GoToAsync("///ProductsPage");
     }
 
     [RelayCommand]
     private async Task ForgotPasswordAsync() =>
         await Shell.Current.DisplayAlert("THE DROP", "Te enviaremos un enlace a tu correo.", "OK");
-
-    // ✅ Comando para volver a Login desde Register (opcional)
-    [RelayCommand]
-    private async Task GoToLoginAsync() =>
-        await Shell.Current.GoToAsync(".."); // Vuelve a la página anterior
 }

@@ -1,4 +1,4 @@
-﻿using Tienda.ViewModels;
+using Tienda.ViewModels;
 
 namespace Tienda.Views;
 
@@ -8,5 +8,12 @@ public partial class AddressesPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        if (BindingContext is AccountViewModel vm)
+            await vm.LoadAddressesCommand.ExecuteAsync(null);
     }
 }

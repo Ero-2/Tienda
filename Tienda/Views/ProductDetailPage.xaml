@@ -4,26 +4,34 @@
              xmlns:vm="clr-namespace:Tienda.ViewModels"
              x:DataType="vm:ProductDetailViewModel"
              x:Class="Tienda.Views.ProductDetailPage"
-             BackgroundColor="#111111"
+             BackgroundColor="#0D0D0D"
              NavigationPage.HasNavigationBar="False">
 
     <ScrollView>
-        <Grid RowDefinitions="260, *">
+        <Grid RowDefinitions="300, *">
 
-            <!-- Hero imagen -->
-            <Grid Grid.Row="0">
+            <!-- Hero imagen con gradient -->
+            <Grid Grid.Row="0" HeightRequest="300">
                 <Image Source="{Binding Product.ImageUrl}"
                        Aspect="AspectFill"
-                       HeightRequest="260" />
+                       HeightRequest="300" />
+
+                <!-- Gradient overlay bottom -->
+                <BoxView HeightRequest="130" VerticalOptions="End">
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#000D0D0D" Offset="0" />
+                            <GradientStop Color="#FF0D0D0D" Offset="1" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
 
                 <!-- Botón regresar -->
-                <Border Grid.Row="0"
-                        BackgroundColor="#80000000"
-                        StrokeShape="RoundRectangle 10"
+                <Border BackgroundColor="#CC111111"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="0"
-                        WidthRequest="40"
-                        HeightRequest="40"
-                        Margin="16,48,0,0"
+                        WidthRequest="40" HeightRequest="40"
+                        Margin="16,52,0,0"
                         VerticalOptions="Start"
                         HorizontalOptions="Start">
                     <Border.GestureRecognizers>
@@ -34,13 +42,11 @@
                 </Border>
 
                 <!-- Favorito -->
-                <Border Grid.Row="0"
-                        BackgroundColor="#80000000"
-                        StrokeShape="RoundRectangle 10"
+                <Border BackgroundColor="#CC111111"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="0"
-                        WidthRequest="40"
-                        HeightRequest="40"
-                        Margin="0,48,16,0"
+                        WidthRequest="40" HeightRequest="40"
+                        Margin="0,52,16,0"
                         VerticalOptions="Start"
                         HorizontalOptions="End">
                     <Border.GestureRecognizers>
@@ -51,98 +57,152 @@
                            HorizontalOptions="Center"
                            VerticalOptions="Center" />
                 </Border>
+
+                <!-- Brand + badge sobre el gradient -->
+                <HorizontalStackLayout VerticalOptions="End" Margin="20,0,20,18" Spacing="10">
+                    <Label Text="{Binding Product.Brand}"
+                           TextColor="#CCFF00"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="3"
+                           VerticalOptions="Center" />
+                    <Border BackgroundColor="#CCFF00"
+                            StrokeShape="RoundRectangle 4"
+                            StrokeThickness="0"
+                            Padding="6,2"
+                            IsVisible="{Binding Product.IsNew}">
+                        <Label Text="NEW" TextColor="#0D0D0D" FontSize="8"
+                               FontAttributes="Bold" CharacterSpacing="1.5" />
+                    </Border>
+                </HorizontalStackLayout>
             </Grid>
 
             <!-- Info -->
-            <VerticalStackLayout Grid.Row="1" Padding="22,20" Spacing="0">
+            <VerticalStackLayout Grid.Row="1" Padding="20,16,20,32" Spacing="0">
 
-                <Label Text="{Binding Product.Brand}"
-                       TextColor="#CCFF00"
-                       FontSize="10"
-                       CharacterSpacing="3"
-                       Margin="0,0,0,6" />
-
+                <!-- Nombre -->
                 <Label Text="{Binding Product.Name}"
                        TextColor="White"
-                       FontSize="22"
+                       FontSize="24"
                        FontAttributes="Bold"
-                       CharacterSpacing="1"
                        LineBreakMode="WordWrap"
-                       Margin="0,0,0,12" />
+                       LineHeight="1.2"
+                       Margin="0,0,0,10" />
 
                 <!-- Precio -->
-                <HorizontalStackLayout Spacing="12" Margin="0,0,0,20">
-                    <Label Text="{Binding Product.Price, StringFormat='${0:F2}'}"
-                           TextColor="#CCFF00"
-                           FontSize="28"
-                           FontAttributes="Bold" />
-                    <Border BackgroundColor="#1ACCFF00"
-                            StrokeShape="RoundRectangle 6"
-                            StrokeThickness="0"
-                            Padding="8,4"
-                            VerticalOptions="Center">
-                        <Label Text="-20%" TextColor="#CCFF00" FontSize="11" FontAttributes="Bold" />
-                    </Border>
-                </HorizontalStackLayout>
+                <Label Text="{Binding Product.Price, StringFormat='${0:F2}'}"
+                       TextColor="#CCFF00"
+                       FontSize="30"
+                       FontAttributes="Bold"
+                       Margin="0,0,0,24" />
+
+                <!-- Divider -->
+                <BoxView Color="#1E1E1E" HeightRequest="1" Margin="0,0,0,20" />
 
                 <!-- Tallas -->
                 <Label Text="TALLA"
-                       TextColor="#555555"
-                       FontSize="10"
-                       CharacterSpacing="2"
+                       TextColor="#505050"
+                       FontSize="9"
+                       FontAttributes="Bold"
+                       CharacterSpacing="2.5"
                        Margin="0,0,0,10" />
 
                 <CollectionView ItemsSource="{Binding AvailableSizes}"
                                 SelectionMode="Single"
                                 SelectedItem="{Binding SelectedSize}"
-                                HeightRequest="50"
-                                Margin="0,0,0,20">
+                                HeightRequest="48"
+                                Margin="0,0,0,24">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
-                            <Border BackgroundColor="#1E1E1E"
-                                    StrokeShape="RoundRectangle 8"
+                            <Border BackgroundColor="#141414"
+                                    StrokeShape="RoundRectangle 6"
                                     StrokeThickness="1"
-                                    Stroke="#2E2E2E"
-                                    WidthRequest="44"
-                                    HeightRequest="44"
+                                    Stroke="#252525"
+                                    WidthRequest="48"
+                                    HeightRequest="48"
                                     Padding="0">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#141414" />
+                                                    <Setter Property="Stroke" Value="#252525" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#CCFF00" />
+                                                    <Setter Property="Stroke" Value="#CCFF00" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
                                 <Label Text="{Binding .}"
-                                       TextColor="#888888"
                                        FontSize="12"
+                                       FontAttributes="Bold"
                                        HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                                       VerticalOptions="Center">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroupList>
+                                            <VisualStateGroup x:Name="CommonStates">
+                                                <VisualState x:Name="Normal">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="TextColor" Value="#666666" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState x:Name="Selected">
+                                                    <VisualState.Setters>
+                                                        <Setter Property="TextColor" Value="#0D0D0D" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateGroupList>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Label>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
+
+                <!-- Divider -->
+                <BoxView Color="#1E1E1E" HeightRequest="1" Margin="0,0,0,20" />
 
                 <!-- Descripción -->
                 <Label Text="{Binding Product.Description}"
                        TextColor="#666666"
                        FontSize="13"
                        LineBreakMode="WordWrap"
-                       LineHeight="1.6"
-                       Margin="0,0,0,16" />
+                       LineHeight="1.7"
+                       Margin="0,0,0,20" />
 
                 <!-- Stock -->
-                <HorizontalStackLayout Spacing="8" Margin="0,0,0,20">
-                    <Ellipse Fill="#CCFF00" WidthRequest="8" HeightRequest="8" VerticalOptions="Center" />
-                    <Label Text="En stock · Disponible" TextColor="#CCFF00" FontSize="12" />
+                <HorizontalStackLayout Spacing="8" Margin="0,0,0,28">
+                    <BoxView Color="#CCFF00" WidthRequest="6" HeightRequest="6"
+                             VerticalOptions="Center"
+                             Rotation="45" />
+                    <Label Text="EN STOCK · DISPONIBLE"
+                           TextColor="#CCFF00"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           CharacterSpacing="1.5"
+                           VerticalOptions="Center" />
                 </HorizontalStackLayout>
 
                 <!-- Add to cart -->
                 <Border BackgroundColor="#CCFF00"
-                        StrokeShape="RoundRectangle 12"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="0"
-                        Padding="0,16">
+                        Padding="0,18">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding AddToCartCommand}" />
                     </Border.GestureRecognizers>
                     <Label Text="+ AGREGAR AL CARRITO"
-                           TextColor="#111111"
+                           TextColor="#0D0D0D"
                            FontSize="14"
                            FontAttributes="Bold"
                            CharacterSpacing="2"

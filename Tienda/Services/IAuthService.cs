@@ -1,10 +1,19 @@
-﻿// Tienda/Services/IAuthService.cs
+// Tienda/Services/IAuthService.cs
 namespace Tienda.Services;
 
 public interface IAuthService
 {
     bool IsLoggedIn { get; }
-    void Login(string email);
+
+    // Login/registro reales contra ms-clientes
+    Task<(bool Success, string? Error)> LoginAsync(string email, string password);
+    Task<(bool Success, string? Error)> RegisterAsync(string nombre, string email, string password);
+
+    // Login local para invitados
+    void LoginAsGuest(string email);
+
     void Logout();
     string? GetUserEmail();
+    string? GetToken();
+    int     GetUserId();
 }

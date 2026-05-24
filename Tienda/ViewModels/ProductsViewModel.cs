@@ -1,9 +1,6 @@
-﻿// Tienda/ViewModels/ProductsViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
-using Tienda.Data;
 using Tienda.Models;
 using Tienda.Services;
 
@@ -11,84 +8,99 @@ namespace Tienda.ViewModels;
 
 public partial class ProductsViewModel : ObservableObject
 {
-    private readonly AppDbContext _context;
-    private readonly IAuthService _authService;
-    private List<Product> _allProducts = new();
+    private readonly IProductoService _productoService;
+    private readonly IAuthService     _authService;
+    private readonly ICartService     _cartService;
 
-    [ObservableProperty]
-    private ObservableCollection<Product> products = new();
+    private List<Product> _allProducts      = new();
+    private List<Product> _filteredProducts = new();
+    private const int PageSize = 20;
 
-    [ObservableProperty]
-    private bool isRefreshing;
+    [ObservableProperty] private ObservableCollection<Product> products = new();
+    [ObservableProperty] private bool isRefreshing;
+    [ObservableProperty] private string selectedFilter = "TODO";
+    [ObservableProperty] private string searchQuery = string.Empty;
+    [ObservableProperty] private int cartItemCount;
+    [ObservableProperty] private ObservableCollection<string> filters = new() { "TODO" };
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int totalPages  = 1;
 
-    [ObservableProperty]
-    private string selectedFilter = "TODO";
+    public bool   HasNextPage => CurrentPage < TotalPages;
+    public bool   HasPrevPage => CurrentPage > 1;
+    public string PageLabel   => $"{CurrentPage} / {TotalPages}";
 
-    [ObservableProperty]
-    private string searchQuery = string.Empty;
-
-    [ObservableProperty]
-    private int cartItemCount;
-
-    public List<string> Filters { get; } =
-        new() { "TODO", "HOODIES", "PANTS", "SNEAKERS", "CAPS" };
-
-    public ProductsViewModel(AppDbContext context, IAuthService authService)
+    public ProductsViewModel(
+        IProductoService productoService,
+        IAuthService authService,
+        ICartService cartService)
     {
-        _context = context;
-        _authService = authService;
+        _productoService = productoService;
+        _authService     = authService;
+        _cartService     = cartService;
     }
+
+    public void RefreshCartCount() => CartItemCount = _cartService.GetItemCount();
 
     [RelayCommand]
     private async Task LoadProductsAsync()
     {
         if (IsRefreshing) return;
         IsRefreshing = true;
-
         try
         {
-            await Task.Run(() => _context.Database.EnsureCreated());
-            var items = await _context.Products.ToListAsync();
-
-            if (!items.Any())
-            {
-                var seed = new List<Product>
-                {
-                    new() { Name = "OVERSIZED TECH HOODIE V2", Brand = "Aethel", Category = "HOODIES", Price = 115.00m, ImageUrl = "hoodie.png", IsNew = true },
-                    new() { Name = "UTILITY CARGO PANTS", Brand = "Techwear Labs", Category = "PANTS", Price = 130.00m, ImageUrl = "cargo.png", IsHot = true },
-                    new() { Name = "NEON BOLT SNEAKERS", Brand = "Runic Customs", Category = "SNEAKERS", Price = 199.99m, ImageUrl = "sneakers.png", IsHot = true },
-                    new() { Name = "CYBERFUTURIST CAP", Brand = "Voidwear", Category = "CAPS", Price = 45.50m, ImageUrl = "cap.png", IsNew = true },
-                };
-                _context.Products.AddRange(seed);
-                await _context.SaveChangesAsync();
-                items = await _context.Products.ToListAsync();
-            }
-
+            var cats = await _productoService.GetCategoriasAsync();
+            Filters = new ObservableCollection<string>(
+                new[] { "TODO" }.Concat(cats.Select(c => c.ToUpper())));
+            var items = await _productoService.GetProductosAsync();
             _allProducts = items;
             ApplyFilter();
         }
-        finally
-        {
-            IsRefreshing = false;
-        }
+        finally { IsRefreshing = false; }
     }
 
     partial void OnSelectedFilterChanged(string value) => ApplyFilter();
-    partial void OnSearchQueryChanged(string value) => ApplyFilter();
+    partial void OnSearchQueryChanged(string value)    => ApplyFilter();
 
     private void ApplyFilter()
     {
         var filtered = _allProducts.AsEnumerable();
-
         if (SelectedFilter != "TODO")
-            filtered = filtered.Where(p => p.Category == SelectedFilter);
-
+            filtered = filtered.Where(p =>
+                p.Category.Equals(SelectedFilter, StringComparison.OrdinalIgnoreCase));
         if (!string.IsNullOrWhiteSpace(SearchQuery))
             filtered = filtered.Where(p =>
-                p.Name.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                p.Name.Contains(SearchQuery,  StringComparison.OrdinalIgnoreCase) ||
                 p.Brand.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase));
+        _filteredProducts = filtered.ToList();
+        CurrentPage = 1;
+        RefreshPagedProducts();
+    }
 
-        Products = new ObservableCollection<Product>(filtered);
+    private void RefreshPagedProducts()
+    {
+        TotalPages = Math.Max(1, (int)Math.Ceiling(_filteredProducts.Count / (double)PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+        Products = new ObservableCollection<Product>(
+            _filteredProducts.Skip((CurrentPage - 1) * PageSize).Take(PageSize));
+        OnPropertyChanged(nameof(HasNextPage));
+        OnPropertyChanged(nameof(HasPrevPage));
+        OnPropertyChanged(nameof(PageLabel));
+    }
+
+    [RelayCommand]
+    private void NextPage()
+    {
+        if (!HasNextPage) return;
+        CurrentPage++;
+        RefreshPagedProducts();
+    }
+
+    [RelayCommand]
+    private void PrevPage()
+    {
+        if (!HasPrevPage) return;
+        CurrentPage--;
+        RefreshPagedProducts();
     }
 
     [RelayCommand]
@@ -111,9 +123,9 @@ public partial class ProductsViewModel : ObservableObject
         try
         {
             if (_authService.IsLoggedIn)
-                await Shell.Current.GoToAsync("AccountPage"); // ✅ registrada en AppShell
+                await Shell.Current.GoToAsync("AccountPage");
             else
-                await Shell.Current.GoToAsync("LoginPage");   // ✅ sin /// y con L mayúscula
+                await Shell.Current.GoToAsync("LoginPage");
         }
         catch (Exception ex)
         {

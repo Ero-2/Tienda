@@ -13,13 +13,16 @@ public partial class AccountPage : ContentPage
         BindingContext = _viewModel = viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        // ✅ Ahora accedemos a la propiedad pública IsLoggedIn
+
         if (!_viewModel.IsLoggedIn)
         {
-            Shell.Current.GoToAsync("///LoginPage");
+            await Shell.Current.GoToAsync("///LoginPage");
+            return;
         }
+
+        await _viewModel.LoadStatsCommand.ExecuteAsync(null);
     }
 }

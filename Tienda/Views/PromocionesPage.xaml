@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Tienda.ViewModels"
+             xmlns:models="clr-namespace:Tienda.Models"
+             x:DataType="vm:PromocionesViewModel"
+             x:Class="Tienda.Views.PromocionesPage"
+             BackgroundColor="#0D0D0D"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentPage.Triggers>
+        <EventTrigger Event="Appearing">
+            <EventTrigger.Actions>
+                <InvokeCommandAction Command="{Binding LoadCommand}" />
+            </EventTrigger.Actions>
+        </EventTrigger>
+    </ContentPage.Triggers>
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="20,20,20,16" ColumnDefinitions="Auto, *">
+            <Border Grid.Column="0"
+                    BackgroundColor="#1C1C1C"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0"
+                    WidthRequest="36" HeightRequest="36"
+                    VerticalOptions="Center"
+                    Margin="0,0,14,0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped" />
+                </Border.GestureRecognizers>
+                <Label Text="←" TextColor="White" FontSize="16"
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                <Label Text="PROMOCIONES"
+                       TextColor="White"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       CharacterSpacing="2" />
+                <BoxView Color="#CCFF00" HeightRequest="2" WidthRequest="40" HorizontalOptions="Start" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,0,20,32" Spacing="20">
+
+                <!-- Loading -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   IsVisible="{Binding IsLoading}"
+                                   Color="#CCFF00"
+                                   HorizontalOptions="Center"
+                                   Margin="0,20,0,0" />
+
+                <!-- Resumen del carrito -->
+                <Border BackgroundColor="#111111"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="#1E1E1E"
+                        Padding="20,18"
+                        IsVisible="{Binding HayItemsEnCarrito}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="DESCUENTO EN TU CARRITO"
+                               TextColor="#555555"
+                               FontSize="9"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="Total original"
+                                   TextColor="#888888" FontSize="13" VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding TotalCarrito, StringFormat='${0:F2}'}"
+                                   TextColor="White" FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding TieneDescuento}">
+                            <Label Grid.Column="0" Text="{Binding MotivoDescuento}"
+                                   TextColor="#CCFF00" FontSize="12" VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding DescuentoAplicado, StringFormat='-${0:F2}'}"
+                                   TextColor="#CCFF00" FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                        </Grid>
+
+                        <BoxView Color="#1E1E1E" HeightRequest="1" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="TOTAL A PAGAR"
+                                   TextColor="White" FontSize="11" FontAttributes="Bold"
+                                   CharacterSpacing="1.5" VerticalOptions="Center" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding TotalAPagar, StringFormat='${0:F2}'}"
+                                   TextColor="#CCFF00" FontSize="22" FontAttributes="Bold" VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- Sin descuento -->
+                        <Border BackgroundColor="#1A1A0A"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1"
+                                Stroke="#2A2A10"
+                                Padding="12,10"
+                                IsVisible="{Binding TieneDescuento, Converter={StaticResource InvertBoolConverter}}">
+                            <Label Text="{Binding MotivoDescuento}"
+                                   TextColor="#888866"
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sin carrito -->
+                <Border BackgroundColor="#111111"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="#1E1E1E"
+                        Padding="20,18"
+                        IsVisible="{Binding HayItemsEnCarrito, Converter={StaticResource InvertBoolConverter}}">
+                    <Label Text="Agrega productos al carrito para ver tu descuento aplicable"
+                           TextColor="#555555"
+                           FontSize="13"
+                           HorizontalTextAlignment="Center" />
+                </Border>
+
+                <!-- Reglas de descuento -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="REGLAS DE DESCUENTO"
+                           TextColor="#555555"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2"
+                           Margin="0,4,0,4" />
+
+                    <Border BackgroundColor="#111111"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1"
+                            Stroke="#1E1E1E"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="36, *" ColumnSpacing="12">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="#1A2A0A"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    WidthRequest="36" HeightRequest="36">
+                                <Label Text="⚡" FontSize="16"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Solo electrónicos → 5% OFF"
+                                       TextColor="White" FontSize="13" FontAttributes="Bold" />
+                                <Label Text="Si todos los productos son electrónicos"
+                                       TextColor="#555555" FontSize="11" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <Border BackgroundColor="#111111"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1"
+                            Stroke="#1E1E1E"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="36, *" ColumnSpacing="12">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="#0A1A2A"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    WidthRequest="36" HeightRequest="36">
+                                <Label Text="💰" FontSize="16"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Compra mayor a $10,000 → 10% OFF"
+                                       TextColor="White" FontSize="13" FontAttributes="Bold" />
+                                <Label Text="Descuento automático al superar el monto"
+                                       TextColor="#555555" FontSize="11" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Promociones activas de la BD -->
+                <VerticalStackLayout Spacing="8"
+                                     IsVisible="{Binding Promociones.Count, Converter={StaticResource NotZeroConverter}}">
+                    <Label Text="PROMOCIONES ACTIVAS"
+                           TextColor="#555555"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2"
+                           Margin="0,4,0,4" />
+
+                    <CollectionView ItemsSource="{Binding Promociones}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Promocion">
+                                <Border BackgroundColor="#111111"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="1"
+                                        Stroke="#CCFF0033"
+                                        Padding="16,14"
+                                        Margin="0,0,0,8">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                            <Label Text="{Binding Nombre}"
+                                                   TextColor="White"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold" />
+                                            <Label Text="{Binding Tipo}"
+                                                   TextColor="#555555"
+                                                   FontSize="11" />
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="#CCFF00"
+                                                StrokeShape="RoundRectangle 6"
+                                                StrokeThickness="0"
+                                                Padding="10,6"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding PorcentajeDescuento, StringFormat='{0:F0}% OFF'}"
+                                                   TextColor="#0D0D0D"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
