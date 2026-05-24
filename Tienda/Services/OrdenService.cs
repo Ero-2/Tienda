@@ -36,7 +36,7 @@ public class OrdenService : IOrdenService
                 nombreProducto  = i.Product.Name,
                 precioUnitario  = i.Product.Price,
                 cantidad        = i.Quantity,
-                esElectronico   = false
+                esElectronico   = i.Product.Category?.ToLower().Contains("electr") == true
             })
         };
 
