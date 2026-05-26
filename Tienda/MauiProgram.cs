@@ -41,9 +41,7 @@ public static class MauiProgram
         builder.Services.AddHttpClient<IProductoService, ProductoService>(c => c.BaseAddress = gatewayUri);
         builder.Services.AddHttpClient<IEnvioService, EnvioService>(c => c.BaseAddress = gatewayUri);
         builder.Services.AddHttpClient<IPromocionService, PromocionService>(c => c.BaseAddress = gatewayUri);
-
-        // OpenPay (tokenización)
-        builder.Services.AddSingleton<IOpenPayTokenService, OpenPayTokenService>();
+        builder.Services.AddHttpClient<IPagosService, PagosService>(c => c.BaseAddress = gatewayUri);
 
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
@@ -57,8 +55,10 @@ public static class MauiProgram
         builder.Services.AddTransient<AddressesViewModel>();
         builder.Services.AddTransient<NotificationsViewModel>();
         builder.Services.AddTransient<PaymentViewModel>();
+        builder.Services.AddTransient<CuotasViewModel>();
 
         // Views
+
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddTransient<ProductsPage>();
         builder.Services.AddTransient<ProductDetailPage>();
@@ -70,6 +70,7 @@ public static class MauiProgram
         builder.Services.AddTransient<NotificationsPage>();
         builder.Services.AddTransient<PaymentPage>();
         builder.Services.AddTransient<PromocionesPage>();
+        builder.Services.AddTransient<CuotasPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

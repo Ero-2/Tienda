@@ -25,41 +25,39 @@ namespace Promociones.API.Endpoints
                 return Results.Created($"/api/promociones/{nuevaPromo.Id}", nuevaPromo);
             });
 
-            // POST: Calcular Descuento (¡Aquí aplicamos las reglas de negocio del profe!)
+            // POST: Calcular Descuento
             group.MapPost("/calcular", (SolicitudDescuento req) =>
             {
-                decimal descuento = 0;
-                string motivo = "Sin descuento";
+                // Electrónicos: 5% sobre su subtotal
+                decimal descuentoElectronicos = req.SubtotalElectronicos * 0.05m;
+                // Otros: 10% si subtotal >= $1,000
+                decimal descuentoOtros = req.SubtotalOtros >= 1000 ? req.SubtotalOtros * 0.10m : 0;
 
-                // Regla 1: Exclusivamente electrónicos -> 5% sin importar el monto
-                if (req.EsSoloElectronica)
-                {
-                    descuento = req.Total * 0.05m;
-                    motivo = "Descuento del 5% por compra de solo electrónicos";
-                }
-                // Regla 2: Compra superior a $1,000 USD -> 10%
-                else if (req.Total >= 1000)
-                {
-                    descuento = req.Total * 0.10m;
-                    motivo = "Descuento del 10% por compra superior a $1,000 USD";
-                }
+                decimal total     = req.SubtotalElectronicos + req.SubtotalOtros;
+                decimal descuento = descuentoElectronicos + descuentoOtros;
 
-                // Manejo de responses: 200 OK con el desglose exacto
+                string motivo = (descuentoElectronicos > 0, descuentoOtros > 0) switch
+                {
+                    (true,  true)  => $"5% electrónicos + 10% otros (≥$1,000)",
+                    (true,  false) => "Descuento del 5% en electrónicos",
+                    (false, true)  => "Descuento del 10% por compra superior a $1,000",
+                    _              => "Sin descuento"
+                };
+
                 return Results.Ok(new
                 {
-                    TotalOriginal = req.Total,
+                    TotalOriginal     = total,
                     DescuentoAplicado = descuento,
-                    TotalAPagar = req.Total - descuento,
-                    Motivo = motivo
+                    TotalAPagar       = total - descuento,
+                    Motivo            = motivo
                 });
             });
         }
     }
 
-    // Modelo temporal para recibir los datos del carrito
     public class SolicitudDescuento
     {
-        public decimal Total { get; set; }
-        public bool EsSoloElectronica { get; set; }
+        public decimal SubtotalElectronicos { get; set; }
+        public decimal SubtotalOtros        { get; set; }
     }
 }

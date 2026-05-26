@@ -21,7 +21,7 @@ public class OrdenService : IOrdenService
         _auth = auth;
     }
 
-    public async Task<OrdenResponse?> CrearOrdenAsync(List<CartItem> items, string modalidadPago, string cardToken)
+    public async Task<OrdenResponse?> CrearOrdenAsync(List<CartItem> items, string modalidadPago)
     {
         SetAuthHeader();
 
@@ -29,7 +29,6 @@ public class OrdenService : IOrdenService
         {
             usuarioId     = _auth.GetUserId(),
             modalidadPago = MapModalidad(modalidadPago),
-            cardToken     = cardToken,
             items         = items.Select(i => new
             {
                 productoId      = i.Product.Id,

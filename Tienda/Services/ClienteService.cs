@@ -74,6 +74,41 @@ public class ClienteService : IClienteService
         catch { return false; }
     }
 
+    public async Task<CreditoDto?> GetCreditoAsync(int clienteId)
+    {
+        try
+        {
+            SetAuthHeader();
+            var response = await _http.GetAsync($"/api/clientes/{clienteId}/credito");
+            if (!response.IsSuccessStatusCode) return null;
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<CreditoDto>(json, JsonOpts);
+        }
+        catch { return null; }
+    }
+
+    public async Task<(bool ok, string? error)> DebitarCreditoAsync(int clienteId, decimal monto)
+    {
+        try
+        {
+            SetAuthHeader();
+            var response = await _http.PostAsJsonAsync(
+                $"/api/clientes/{clienteId}/credito/debitar",
+                new { monto });
+
+            if (response.IsSuccessStatusCode) return (true, null);
+            var body = await response.Content.ReadAsStringAsync();
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(body);
+                var msg = doc.RootElement.GetProperty("error").GetString();
+                return (false, msg ?? "Error al debitar crédito");
+            }
+            catch { return (false, "Error al debitar crédito"); }
+        }
+        catch (Exception ex) { return (false, ex.Message); }
+    }
+
     private void SetAuthHeader()
     {
         var token = _auth.GetToken();

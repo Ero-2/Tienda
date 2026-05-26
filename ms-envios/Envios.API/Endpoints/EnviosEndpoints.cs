@@ -57,6 +57,23 @@ namespace Envios.API.Endpoints
                 await db.SaveChangesAsync();
                 return Results.Ok(envio);
             });
+
+            // GET: Calcular costo de envío (envío gratis >= $50)
+            group.MapGet("/calcular-costo", (decimal subtotal) =>
+            {
+                const decimal umbralGratis = 50m;
+                const decimal costoBase    = 9.99m;
+
+                bool esGratis = subtotal >= umbralGratis;
+                return Results.Ok(new
+                {
+                    CostoEnvio          = esGratis ? 0m : costoBase,
+                    EsGratis            = esGratis,
+                    MensajePromocion    = esGratis
+                        ? "Envío gratis por compra mayor a $50"
+                        : $"Envío gratis en compras mayores a $50 (faltan ${umbralGratis - subtotal:F2})"
+                });
+            });
         }
     }
 }

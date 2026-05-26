@@ -7,10 +7,13 @@ public class Pago
     public int UsuarioId { get; set; }
     public decimal Monto { get; set; }
     public int MesesMsi { get; set; }
-    public string Estado { get; set; } = "pendiente"; // pendiente, aprobado, rechazado
+    public string Estado { get; set; } = "pendiente"; // pendiente, aprobado, rechazado, cancelado
+    public string TokenCheckout { get; set; } = string.Empty;
     public string? IdTransaccionOpenpay { get; set; }
     public string? ReferenciaOpenpay { get; set; }
     public string? RespuestaOpenpay { get; set; }
+    public string? TarjetaEnmascarada { get; set; }
+    public string? MarcaTarjeta { get; set; }
     public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
     public DateTime? ProcesadoEn { get; set; }
 }

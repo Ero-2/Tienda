@@ -2,12 +2,14 @@ namespace MsClientes.Models;
 
 public class Cliente
 {
-    public int     Id           { get; set; }
-    public string  Nombre       { get; set; } = string.Empty;
-    public string  Email        { get; set; } = string.Empty;
-    public string  PasswordHash { get; set; } = string.Empty;
-    public string? Telefono     { get; set; }
-    public DateTime CreadoEn   { get; set; } = DateTime.UtcNow;
+    public int     Id                 { get; set; }
+    public string  Nombre             { get; set; } = string.Empty;
+    public string  Email              { get; set; } = string.Empty;
+    public string  PasswordHash       { get; set; } = string.Empty;
+    public string? Telefono           { get; set; }
+    public DateTime CreadoEn         { get; set; } = DateTime.UtcNow;
+    public decimal LimiteCredito      { get; set; }
+    public decimal CreditoDisponible  { get; set; }
     public List<Direccion> Direcciones { get; set; } = new();
 }
 
@@ -68,11 +70,25 @@ public class LoginResponse
 
 public class ClienteResponse
 {
-    public int     Id       { get; set; }
-    public string  Nombre   { get; set; } = string.Empty;
-    public string  Email    { get; set; } = string.Empty;
-    public string? Telefono { get; set; }
-    public DateTime CreadoEn { get; set; }
+    public int     Id                { get; set; }
+    public string  Nombre            { get; set; } = string.Empty;
+    public string  Email             { get; set; } = string.Empty;
+    public string? Telefono          { get; set; }
+    public DateTime CreadoEn        { get; set; }
+    public decimal LimiteCredito     { get; set; }
+    public decimal CreditoDisponible { get; set; }
+}
+
+public class CreditoResponse
+{
+    public decimal LimiteCredito     { get; set; }
+    public decimal CreditoDisponible { get; set; }
+    public decimal CreditoUsado      => LimiteCredito - CreditoDisponible;
+}
+
+public class DebitarCreditoRequest
+{
+    public decimal Monto { get; set; }
 }
 
 public class DireccionResponse

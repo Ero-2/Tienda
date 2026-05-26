@@ -8,7 +8,6 @@ public class OrdenCreadaEvent
     public decimal Descuento { get; set; }
     public string ModalidadPago { get; set; } = string.Empty;
     public int MesesMsi { get; set; }
-    public string CardToken { get; set; } = string.Empty;
     public List<ItemEvent> Items { get; set; } = new();
     public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
 }

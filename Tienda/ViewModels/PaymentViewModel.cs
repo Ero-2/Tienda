@@ -5,33 +5,81 @@ using Tienda.Services;
 namespace Tienda.ViewModels;
 
 [QueryProperty(nameof(ModalidadPago), "ModalidadPago")]
-[QueryProperty(nameof(Total), "Total")]
+[QueryProperty(nameof(Total),         "Total")]
+[QueryProperty(nameof(Subtotal),      "Subtotal")]
+[QueryProperty(nameof(Descuento),     "Descuento")]
+[QueryProperty(nameof(CostoEnvio),   "CostoEnvio")]
 public partial class PaymentViewModel : ObservableObject
 {
-    private readonly IOpenPayTokenService _tokenService;
-    private readonly IOrdenService        _ordenService;
-    private readonly ICartService         _cartService;
+    private readonly IOrdenService   _ordenService;
+    private readonly IPagosService   _pagosService;
+    private readonly ICartService    _cartService;
+    private readonly IClienteService _clienteService;
+    private readonly IAuthService    _authService;
 
     [ObservableProperty] private string  modalidadPago = string.Empty;
     [ObservableProperty] private decimal total;
+    [ObservableProperty] private decimal subtotal;
+    [ObservableProperty] private decimal descuento;
+    [ObservableProperty] private decimal costoEnvio;
 
-    [ObservableProperty] private string numeroTarjeta   = string.Empty;
-    [ObservableProperty] private string titular         = string.Empty;
-    [ObservableProperty] private string mesExpiracion   = string.Empty;
-    [ObservableProperty] private string anioExpiracion  = string.Empty;
-    [ObservableProperty] private string cvv             = string.Empty;
+    [ObservableProperty] private string  numeroTarjeta  = string.Empty;
+    [ObservableProperty] private string  titular        = string.Empty;
+    [ObservableProperty] private string  mesExpiracion  = string.Empty;
+    [ObservableProperty] private string  anioExpiracion = string.Empty;
+    [ObservableProperty] private string  cvv            = string.Empty;
 
-    [ObservableProperty] private bool   isLoading       = false;
-    [ObservableProperty] private string errorMessage    = string.Empty;
+    [ObservableProperty] private bool    isLoading      = false;
+    [ObservableProperty] private string  errorMessage   = string.Empty;
+
+    // Crédito
+    [ObservableProperty] private decimal creditoDisponible;
+    [ObservableProperty] private bool    creditoCargado;
+
+    public bool EsPagoCredito  => ModalidadPago == "Crédito";
+    public bool EsPagoTarjeta  => !EsPagoCredito;
+
+    public string MsiLabel
+    {
+        get
+        {
+            var meses = ModalidadPago switch { "3 MSI" => 3, "6 MSI" => 6, "12 MSI" => 12, _ => 0 };
+            return (meses == 0 || Total <= 0) ? string.Empty : $"{meses} pagos de ${Total / meses:F2}/mes";
+        }
+    }
+
+    partial void OnModalidadPagoChanged(string value)
+    {
+        OnPropertyChanged(nameof(MsiLabel));
+        OnPropertyChanged(nameof(EsPagoCredito));
+        OnPropertyChanged(nameof(EsPagoTarjeta));
+        if (value == "Crédito") _ = CargarCreditoAsync();
+    }
+    partial void OnTotalChanged(decimal value) => OnPropertyChanged(nameof(MsiLabel));
 
     public PaymentViewModel(
-        IOpenPayTokenService tokenService,
-        IOrdenService ordenService,
-        ICartService cartService)
+        IOrdenService   ordenService,
+        IPagosService   pagosService,
+        ICartService    cartService,
+        IClienteService clienteService,
+        IAuthService    authService)
     {
-        _tokenService = tokenService;
-        _ordenService = ordenService;
-        _cartService  = cartService;
+        _ordenService   = ordenService;
+        _pagosService   = pagosService;
+        _cartService    = cartService;
+        _clienteService = clienteService;
+        _authService    = authService;
+    }
+
+    private async Task CargarCreditoAsync()
+    {
+        var id = _authService.GetUserId();
+        var credito = await _clienteService.GetCreditoAsync(id);
+        if (credito is not null)
+        {
+            CreditoDisponible = credito.CreditoDisponible;
+            CreditoCargado    = true;
+        }
     }
 
     [RelayCommand]
@@ -39,24 +87,19 @@ public partial class PaymentViewModel : ObservableObject
     {
         ErrorMessage = string.Empty;
 
+        if (EsPagoCredito)
+        {
+            await PagarConCreditoAsync();
+            return;
+        }
+
         if (!ValidarCampos()) return;
 
         IsLoading = true;
         try
         {
-            // 1. Tokenizar tarjeta con OpenPay
-            var token = await _tokenService.TokenizarTarjetaAsync(
-                NumeroTarjeta, Titular, MesExpiracion, AnioExpiracion, Cvv);
-
-            if (token is null)
-            {
-                ErrorMessage = "Datos de tarjeta inválidos. Verifica e intenta de nuevo.";
-                return;
-            }
-
-            // 2. Crear orden con token
-            var items = _cartService.GetItems();
-            var orden = await _ordenService.CrearOrdenAsync(items, ModalidadPago, token);
+            var items  = _cartService.GetItems();
+            var orden  = await _ordenService.CrearOrdenAsync(items, ModalidadPago);
 
             if (orden is null)
             {
@@ -64,19 +107,67 @@ public partial class PaymentViewModel : ObservableObject
                 return;
             }
 
-            // 3. Limpiar carrito y navegar a seguimiento
+            var checkout = await _pagosService.ObtenerCheckoutAsync(orden.Id);
+            if (checkout is null)
+            {
+                ErrorMessage = "No se pudo obtener el checkout. Intenta de nuevo.";
+                return;
+            }
+
+            var tarjeta = new TarjetaData
+            {
+                NumeroTarjeta = NumeroTarjeta.Replace(" ", ""),
+                NombreTitular = Titular,
+                Mes           = int.Parse(MesExpiracion),
+                Anio          = int.Parse(AnioExpiracion),
+                Cvv           = Cvv
+            };
+
+            var resultado = await _pagosService.ConfirmarPagoAsync(checkout.Token, tarjeta);
+            if (resultado is null) { ErrorMessage = "Error al procesar el pago."; return; }
+
+            if (resultado.Estado == "aprobado")
+            {
+                _cartService.Clear();
+                await Shell.Current.GoToAsync("OrderTrackingPage",
+                    new Dictionary<string, object> { ["OrderId"] = $"#{orden.Id}" });
+            }
+            else
+            {
+                ErrorMessage = $"Pago {resultado.Estado}: {resultado.Mensaje}";
+            }
+        }
+        catch (Exception ex) { ErrorMessage = ex.Message; }
+        finally { IsLoading = false; }
+    }
+
+    private async Task PagarConCreditoAsync()
+    {
+        if (CreditoDisponible < Total)
+        {
+            ErrorMessage = $"Crédito insuficiente. Disponible: ${CreditoDisponible:F2}";
+            return;
+        }
+
+        IsLoading = true;
+        try
+        {
+            var items = _cartService.GetItems();
+            var orden = await _ordenService.CrearOrdenAsync(items, "credito");
+
+            if (orden is null) { ErrorMessage = "No se pudo crear la orden."; return; }
+
+            var userId = _authService.GetUserId();
+            var (ok, error) = await _clienteService.DebitarCreditoAsync(userId, Total);
+
+            if (!ok) { ErrorMessage = error ?? "Error al debitar crédito."; return; }
+
             _cartService.Clear();
             await Shell.Current.GoToAsync("OrderTrackingPage",
                 new Dictionary<string, object> { ["OrderId"] = $"#{orden.Id}" });
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = ex.Message;
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        catch (Exception ex) { ErrorMessage = ex.Message; }
+        finally { IsLoading = false; }
     }
 
     [RelayCommand]
@@ -94,8 +185,8 @@ public partial class PaymentViewModel : ObservableObject
         if (!int.TryParse(MesExpiracion, out var mes) || mes < 1 || mes > 12)
         { ErrorMessage = "Mes de expiración inválido (01-12)."; return false; }
 
-        if (!int.TryParse(AnioExpiracion, out _) || AnioExpiracion.Length != 2)
-        { ErrorMessage = "Año inválido (ej: 26)."; return false; }
+        if (!int.TryParse(AnioExpiracion, out _) || AnioExpiracion.Length != 4)
+        { ErrorMessage = "Año inválido (ej: 2030)."; return false; }
 
         if (Cvv.Length < 3 || Cvv.Length > 4)
         { ErrorMessage = "CVV inválido."; return false; }

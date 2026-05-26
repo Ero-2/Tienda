@@ -187,7 +187,7 @@
                     <BoxView Color="#CCFF00" WidthRequest="6" HeightRequest="6"
                              VerticalOptions="Center"
                              Rotation="45" />
-                    <Label Text="EN STOCK · DISPONIBLE"
+                    <Label Text="{Binding Product.Stock, StringFormat='{0} EN STOCK'}"
                            TextColor="#CCFF00"
                            FontSize="10"
                            FontAttributes="Bold"

@@ -79,7 +79,23 @@ public class PagoConsumer : BackgroundService
                     cancellationToken: stoppingToken
                 );
 
-                _logger.LogInformation("✅ Escuchando eventos PagoAprobado y PagoRechazado...");
+                // Cola para PagoCancelado
+                await channel.QueueDeclareAsync(
+                    queue: "ordenes.pago-cancelado",
+                    durable: true,
+                    exclusive: false,
+                    autoDelete: false,
+                    cancellationToken: stoppingToken
+                );
+
+                await channel.QueueBindAsync(
+                    queue: "ordenes.pago-cancelado",
+                    exchange: "tienda.pagos",
+                    routingKey: "pago.cancelado",
+                    cancellationToken: stoppingToken
+                );
+
+                _logger.LogInformation("✅ Escuchando eventos PagoAprobado, PagoRechazado y PagoCancelado...");
 
                 // Consumer PagoAprobado
                 var consumerAprobado = new AsyncEventingBasicConsumer(channel);
@@ -149,6 +165,40 @@ public class PagoConsumer : BackgroundService
                     }
                 };
 
+                // Consumer PagoCancelado
+                var consumerCancelado = new AsyncEventingBasicConsumer(channel);
+                consumerCancelado.ReceivedAsync += async (model, ea) =>
+                {
+                    try
+                    {
+                        var body    = ea.Body.ToArray();
+                        var mensaje = Encoding.UTF8.GetString(body);
+                        var evento  = JsonSerializer.Deserialize<PagoCanceladoEvent>(mensaje);
+
+                        if (evento is not null)
+                        {
+                            using var scope = _scopeFactory.CreateScope();
+                            var db    = scope.ServiceProvider.GetRequiredService<OrdenesDbContext>();
+                            var orden = await db.Ordenes.FirstOrDefaultAsync(o => o.Id == evento.OrdenId);
+
+                            if (orden is not null)
+                            {
+                                orden.Estado        = "cancelada";
+                                orden.ActualizadoEn = DateTime.UtcNow;
+                                await db.SaveChangesAsync();
+                                _logger.LogWarning("🚫 Orden {OrdenId} cancelada — motivo: {Motivo}", evento.OrdenId, evento.Motivo);
+                            }
+                        }
+
+                        await channel.BasicAckAsync(ea.DeliveryTag, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error procesando PagoCancelado");
+                        await channel.BasicNackAsync(ea.DeliveryTag, false, true);
+                    }
+                };
+
                 await channel.BasicConsumeAsync(
                     queue: "ordenes.pago-aprobado",
                     autoAck: false,
@@ -160,6 +210,13 @@ public class PagoConsumer : BackgroundService
                     queue: "ordenes.pago-rechazado",
                     autoAck: false,
                     consumer: consumerRechazado,
+                    cancellationToken: stoppingToken
+                );
+
+                await channel.BasicConsumeAsync(
+                    queue: "ordenes.pago-cancelado",
+                    autoAck: false,
+                    consumer: consumerCancelado,
                     cancellationToken: stoppingToken
                 );
 

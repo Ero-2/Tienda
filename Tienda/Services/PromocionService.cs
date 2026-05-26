@@ -24,12 +24,12 @@ public class PromocionService : IPromocionService
         catch { return []; }
     }
 
-    public async Task<DescuentoResponse?> CalcularDescuentoAsync(decimal total, bool esSoloElectronica)
+    public async Task<DescuentoResponse?> CalcularDescuentoAsync(decimal subtotalElectronicos, decimal subtotalOtros)
     {
         try
         {
             var response = await _http.PostAsJsonAsync("/api/promociones/calcular",
-                new { Total = total, EsSoloElectronica = esSoloElectronica });
+                new { SubtotalElectronicos = subtotalElectronicos, SubtotalOtros = subtotalOtros });
             if (!response.IsSuccessStatusCode) return null;
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<DescuentoResponse>(json, JsonOpts);

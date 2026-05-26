@@ -4,9 +4,18 @@ namespace Tienda.Services;
 
 public interface IClienteService
 {
-    Task<List<Address>> GetDireccionesAsync(int clienteId);
-    Task<Address?>      AgregarDireccionAsync(int clienteId, Address address);
-    Task<bool>          EliminarDireccionAsync(int clienteId, int direccionId);
+    Task<List<Address>>  GetDireccionesAsync(int clienteId);
+    Task<Address?>       AgregarDireccionAsync(int clienteId, Address address);
+    Task<bool>           EliminarDireccionAsync(int clienteId, int direccionId);
+    Task<CreditoDto?>    GetCreditoAsync(int clienteId);
+    Task<(bool ok, string? error)> DebitarCreditoAsync(int clienteId, decimal monto);
+}
+
+public class CreditoDto
+{
+    public decimal LimiteCredito     { get; set; }
+    public decimal CreditoDisponible { get; set; }
+    public decimal CreditoUsado      { get; set; }
 }
 
 // DTOs que devuelve ms-clientes

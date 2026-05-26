@@ -21,16 +21,16 @@ public class OrdenService
         // 1. Calcular subtotal
         decimal subtotal = request.Items.Sum(i => i.PrecioUnitario * i.Cantidad);
 
-        // 2. Calcular descuento según reglas de negocio
-        decimal descuentoPct = 0;
-        bool todosElectronicos = request.Items.All(i => i.EsElectronico);
+        // 2. Calcular descuento por categoría: electrónicos 5%, otros >= $1000 → 10%
+        decimal subtotalElectronicos = request.Items
+            .Where(i => i.EsElectronico)
+            .Sum(i => i.PrecioUnitario * i.Cantidad);
+        decimal subtotalOtros = subtotal - subtotalElectronicos;
 
-        if (subtotal >= 1000)
-        {
-            descuentoPct = todosElectronicos ? 5 : 10;
-        }
-
-        decimal descuentoMonto = subtotal * (descuentoPct / 100);
+        decimal descuentoElectronicos = subtotalElectronicos > 0 ? subtotalElectronicos * 0.05m : 0;
+        decimal descuentoOtros        = subtotalOtros >= 1000    ? subtotalOtros        * 0.10m : 0;
+        decimal descuentoMonto        = descuentoElectronicos + descuentoOtros;
+        decimal descuentoPct          = subtotal > 0 ? Math.Round(descuentoMonto / subtotal * 100, 2) : 0;
         decimal total = subtotal - descuentoMonto;
 
         // 3. Calcular meses MSI
@@ -78,7 +78,6 @@ public class OrdenService
             Descuento = orden.DescuentoMonto,
             ModalidadPago = orden.ModalidadPago,
             MesesMsi = orden.MesesMsi,
-            CardToken = request.CardToken,
             CreadoEn = DateTime.UtcNow,
             Items = orden.Items.Select(i => new ItemEvent
             {

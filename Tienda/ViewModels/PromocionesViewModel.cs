@@ -55,10 +55,12 @@ public partial class PromocionesViewModel : ObservableObject
 
         if (TotalCarrito > 0)
         {
-            bool esSoloElectronica = items.Count > 0 &&
-                items.All(i => i.Product.Category?.ToLower().Contains("electr") == true);
+            decimal subtotalElectronicos = items
+                .Where(i => i.Product.Category?.ToLower().Contains("electr") == true)
+                .Sum(i => i.Product.Price * i.Quantity);
+            decimal subtotalOtros = TotalCarrito - subtotalElectronicos;
 
-            var resultado = await _promoService.CalcularDescuentoAsync(TotalCarrito, esSoloElectronica);
+            var resultado = await _promoService.CalcularDescuentoAsync(subtotalElectronicos, subtotalOtros);
             if (resultado is not null)
             {
                 DescuentoAplicado = resultado.DescuentoAplicado;

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MsPagos.Data;
 
@@ -11,9 +12,11 @@ using MsPagos.Data;
 namespace MsPagos.Migrations
 {
     [DbContext(typeof(PagosDbContext))]
-    partial class PagosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526180000_AddPlanPagos")]
+    partial class AddPlanPagos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

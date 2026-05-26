@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MsPagos.Data;
 
@@ -11,9 +12,11 @@ using MsPagos.Data;
 namespace MsPagos.Migrations
 {
     [DbContext(typeof(PagosDbContext))]
-    partial class PagosDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260526120000_AddCheckoutTarjeta")]
+    partial class AddCheckoutTarjeta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,45 +85,6 @@ namespace MsPagos.Migrations
                     b.HasIndex("TokenCheckout");
 
                     b.ToTable("pagos", "pagos");
-                });
-
-            modelBuilder.Entity("MsPagos.Models.PlanPago", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreadoEn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("CuotaMensual")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<int>("CuotasPagadas")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Estado")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("MesesMsi")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdenId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalFinanciado")
-                        .HasColumnType("decimal(12,2)");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("plan_pagos", "pagos");
                 });
 #pragma warning restore 612, 618
         }

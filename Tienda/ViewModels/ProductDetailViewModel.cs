@@ -75,7 +75,15 @@ public partial class ProductDetailViewModel : ObservableObject
             return;
         }
 
-        _cartService.AddItem(product, SelectedSize, 1);
+        bool added = _cartService.AddItem(product, SelectedSize, 1);
+        if (!added)
+        {
+            await Shell.Current.DisplayAlert(
+                "Sin stock",
+                $"Solo hay {product.Stock} unidades disponibles de este producto.",
+                "OK");
+            return;
+        }
 
         var detalle = RequieresTalla
             ? $"{product.Name} · {(EsCalzado ? "Núm." : "Talla")} {SelectedSize}"

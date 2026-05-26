@@ -27,7 +27,7 @@
                     Stroke="#252525"
                     Padding="12,5"
                     VerticalOptions="Center">
-                <Label Text="{Binding Items.Count, StringFormat='{0} items'}"
+                <Label Text="{Binding TotalItemCount, StringFormat='{0} items'}"
                        TextColor="#888888"
                        FontSize="11"
                        FontAttributes="Bold"
@@ -138,14 +138,18 @@
                             </HorizontalStackLayout>
                         </VerticalStackLayout>
 
-                        <!-- Precio -->
-                        <Label Grid.Column="2"
-                               Text="{Binding Product.Price, StringFormat='${0:F2}'}"
-                               TextColor="#CCFF00"
-                               FontSize="15"
-                               FontAttributes="Bold"
-                               VerticalOptions="Start"
-                               Margin="0,4,0,0" />
+                        <!-- Precio (total de línea) -->
+                        <VerticalStackLayout Grid.Column="2" Spacing="2" VerticalOptions="Start" Margin="0,4,0,0">
+                            <Label Text="{Binding LineTotal, StringFormat='${0:F2}'}"
+                                   TextColor="#CCFF00"
+                                   FontSize="15"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="End" />
+                            <Label Text="{Binding Product.Price, StringFormat='${0:F2} c/u'}"
+                                   TextColor="#404040"
+                                   FontSize="10"
+                                   HorizontalOptions="End" />
+                        </VerticalStackLayout>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
@@ -172,6 +176,26 @@
                        CharacterSpacing="1" VerticalOptions="Center" />
                 <Label Grid.Column="1" Text="{Binding Discount, StringFormat='-${0:F2}'}"
                        TextColor="#CCFF00" FontSize="14" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Envío -->
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                    <Label Text="ENVÍO" TextColor="#505050"
+                           FontSize="10" FontAttributes="Bold" CharacterSpacing="1.5" />
+                    <Label Text="{Binding EnvioLabel}"
+                           TextColor="#CCFF00" FontSize="9" CharacterSpacing="0.5"
+                           IsVisible="{Binding EnvioGratis}" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       IsVisible="{Binding EnvioGratis, Converter={StaticResource InvertBoolConverter}}"
+                       Text="{Binding CostoEnvio, StringFormat='${0:F2}'}"
+                       TextColor="White" FontSize="14" VerticalOptions="Center" />
+                <Label Grid.Column="1"
+                       IsVisible="{Binding EnvioGratis}"
+                       Text="GRATIS"
+                       TextColor="#CCFF00" FontSize="12" FontAttributes="Bold"
+                       CharacterSpacing="1" VerticalOptions="Center" />
             </Grid>
 
             <BoxView Color="#1E1E1E" HeightRequest="1" />
@@ -243,6 +267,21 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <!-- MSI mensualidad -->
+            <Border BackgroundColor="#0D1A00"
+                    StrokeShape="RoundRectangle 6"
+                    StrokeThickness="1"
+                    Stroke="#CCFF0022"
+                    Padding="12,8"
+                    IsVisible="{Binding MsiLabel, Converter={StaticResource NotEmptyConverter}}">
+                <Label Text="{Binding MsiLabel}"
+                       TextColor="#CCFF00"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       CharacterSpacing="0.5"
+                       HorizontalOptions="Center" />
+            </Border>
 
             <!-- Promociones -->
             <Border BackgroundColor="Transparent"

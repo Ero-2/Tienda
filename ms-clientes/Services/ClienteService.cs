@@ -18,19 +18,25 @@ public class ClienteService
 
     // ── Auth ──────────────────────────────────────────────────
 
+    private static readonly decimal[] _creditOptions = [200m, 500m, 1000m];
+    private static readonly Random    _rng            = new();
+
     public async Task<(LoginResponse? result, string? error)> RegistrarAsync(RegistroRequest req)
     {
         if (await _db.Clientes.AnyAsync(c => c.Email == req.Email))
             return (null, "El email ya está registrado");
 
+        var limite  = _creditOptions[_rng.Next(_creditOptions.Length)];
         var hasher  = new PasswordHasher<string>();
         var cliente = new Cliente
         {
-            Nombre       = req.Nombre,
-            Email        = req.Email,
-            PasswordHash = hasher.HashPassword(req.Email, req.Password),
-            Telefono     = req.Telefono,
-            CreadoEn     = DateTime.UtcNow
+            Nombre             = req.Nombre,
+            Email              = req.Email,
+            PasswordHash       = hasher.HashPassword(req.Email, req.Password),
+            Telefono           = req.Telefono,
+            CreadoEn           = DateTime.UtcNow,
+            LimiteCredito      = limite,
+            CreditoDisponible  = limite
         };
 
         _db.Clientes.Add(cliente);
@@ -77,12 +83,33 @@ public class ClienteService
 
         return new ClienteResponse
         {
-            Id       = c.Id,
-            Nombre   = c.Nombre,
-            Email    = c.Email,
-            Telefono = c.Telefono,
-            CreadoEn = c.CreadoEn
+            Id                = c.Id,
+            Nombre            = c.Nombre,
+            Email             = c.Email,
+            Telefono          = c.Telefono,
+            CreadoEn          = c.CreadoEn,
+            LimiteCredito     = c.LimiteCredito,
+            CreditoDisponible = c.CreditoDisponible
         };
+    }
+
+    public async Task<CreditoResponse?> GetCreditoAsync(int id)
+    {
+        var c = await _db.Clientes.FindAsync(id);
+        if (c is null) return null;
+        return new CreditoResponse { LimiteCredito = c.LimiteCredito, CreditoDisponible = c.CreditoDisponible };
+    }
+
+    public async Task<(CreditoResponse? result, string? error)> DebitarCreditoAsync(int id, decimal monto)
+    {
+        var c = await _db.Clientes.FindAsync(id);
+        if (c is null) return (null, "Cliente no encontrado");
+        if (c.CreditoDisponible < monto)
+            return (null, $"Crédito insuficiente. Disponible: ${c.CreditoDisponible:F2}");
+
+        c.CreditoDisponible -= monto;
+        await _db.SaveChangesAsync();
+        return (new CreditoResponse { LimiteCredito = c.LimiteCredito, CreditoDisponible = c.CreditoDisponible }, null);
     }
 
     public async Task<bool> ActualizarPerfilAsync(int id, ActualizarClienteRequest req)

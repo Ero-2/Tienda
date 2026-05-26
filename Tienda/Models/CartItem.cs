@@ -1,13 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Tienda.Models
 {
-    public class CartItem
+    public partial class CartItem : ObservableObject
     {
         public Product Product { get; set; } = new();
-        public string Size { get; set; } = string.Empty;
-        public int Quantity { get; set; } = 1;
+        public string  Size    { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        private int quantity = 1;
+
+        // Se recalcula y notifica cuando Quantity cambia
+        partial void OnQuantityChanged(int value) =>
+            OnPropertyChanged(nameof(LineTotal));
+
+        public decimal LineTotal => Product.Price * Quantity;
     }
 }

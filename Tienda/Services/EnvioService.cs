@@ -33,4 +33,29 @@ public class EnvioService : IEnvioService
         }
         catch { return null; }
     }
+
+    public async Task<CostoEnvioDto> CalcularCostoAsync(decimal subtotal)
+    {
+        try
+        {
+            var response = await _http.GetAsync($"/api/envios/calcular-costo?subtotal={subtotal}");
+            if (!response.IsSuccessStatusCode)
+                return FallbackCosto(subtotal);
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<CostoEnvioDto>(json, JsonOpts) ?? FallbackCosto(subtotal);
+        }
+        catch { return FallbackCosto(subtotal); }
+    }
+
+    private static CostoEnvioDto FallbackCosto(decimal subtotal)
+    {
+        bool gratis = subtotal >= 50m;
+        return new CostoEnvioDto
+        {
+            CostoEnvio       = gratis ? 0m : 9.99m,
+            EsGratis         = gratis,
+            MensajePromocion = gratis ? "Envío gratis" : "Envío $9.99"
+        };
+    }
 }

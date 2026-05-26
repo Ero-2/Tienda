@@ -8,8 +8,11 @@ public class PagoResponse
     public decimal Monto { get; set; }
     public int MesesMsi { get; set; }
     public string Estado { get; set; } = string.Empty;
+    public string TokenCheckout { get; set; } = string.Empty;
     public string? IdTransaccionOpenpay { get; set; }
     public string? ReferenciaOpenpay { get; set; }
+    public string? TarjetaEnmascarada { get; set; }
+    public string? MarcaTarjeta { get; set; }
     public DateTime CreadoEn { get; set; }
     public DateTime? ProcesadoEn { get; set; }
 }

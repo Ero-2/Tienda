@@ -4,7 +4,6 @@ public class CrearOrdenRequest
 {
     public int UsuarioId { get; set; }
     public string ModalidadPago { get; set; } = "contado";
-    public string CardToken { get; set; } = string.Empty;
     public List<ItemRequest> Items { get; set; } = new();
 }
 

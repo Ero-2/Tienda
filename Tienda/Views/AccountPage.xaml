@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Tienda.ViewModels"
+             xmlns:svc="clr-namespace:Tienda.Services"
              x:DataType="vm:AccountViewModel"
              x:Class="Tienda.Views.AccountPage"
              BackgroundColor="#0D0D0D"
@@ -122,6 +123,93 @@
 
                 </Grid>
             </Border>
+
+            <!-- Crédito disponible -->
+            <Border BackgroundColor="#0D1A00"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1"
+                    Stroke="#CCFF0033"
+                    Padding="20,16"
+                    Margin="20,0,20,12">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="3">
+                            <Label Text="CRÉDITO DISPONIBLE"
+                                   TextColor="#CCFF00" FontSize="9"
+                                   FontAttributes="Bold" CharacterSpacing="2.5" />
+                            <Label Text="{Binding CreditoDisponible, StringFormat='${0:F2}'}"
+                                   TextColor="White" FontSize="26" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="3" HorizontalOptions="End" VerticalOptions="Center">
+                            <Label Text="{Binding LimiteCredito, StringFormat='Límite: ${0:F0}'}"
+                                   TextColor="#404040" FontSize="10"
+                                   HorizontalOptions="End" />
+                            <Label Text="{Binding CreditoUsado, StringFormat='Usado: ${0:F2}'}"
+                                   TextColor="#606060" FontSize="10"
+                                   HorizontalOptions="End" />
+                        </VerticalStackLayout>
+                    </Grid>
+                    <!-- Barra disponible / límite -->
+                    <ProgressBar Progress="{Binding CreditoPorcentaje}"
+                                 ProgressColor="#CCFF00"
+                                 BackgroundColor="#1A2A00"
+                                 HeightRequest="4" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Planes de pago activos (MSI) -->
+            <VerticalStackLayout Padding="20,0,20,16"
+                                 IsVisible="{Binding TienePlanes}">
+                <Label Text="PAGOS A MESES"
+                       TextColor="#3A3A3A" FontSize="9"
+                       FontAttributes="Bold" CharacterSpacing="2.5"
+                       Margin="0,0,0,8" />
+                <CollectionView ItemsSource="{Binding PlanesActivos}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="svc:PlanPagoInfo">
+                            <Border BackgroundColor="#111111"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="1"
+                                    Stroke="#1E1E1E"
+                                    Padding="16,12"
+                                    Margin="0,0,0,6">
+                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                        <Label Text="{Binding MesesMsi, StringFormat='{0} MSI'}"
+                                               TextColor="#CCFF00" FontSize="10"
+                                               FontAttributes="Bold" CharacterSpacing="1" />
+                                        <Label Text="{Binding CuotaMensual, StringFormat='${0:F2}/mes'}"
+                                               TextColor="White" FontSize="15" FontAttributes="Bold" />
+                                        <Label TextColor="#404040" FontSize="10">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{}{0}/{1} cuotas pagadas">
+                                                    <Binding Path="CuotasPagadas" />
+                                                    <Binding Path="MesesMsi" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#CCFF00"
+                                            StrokeShape="RoundRectangle 6"
+                                            StrokeThickness="0"
+                                            Padding="12,8"
+                                            VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.PagarCuotaCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="PAGAR" TextColor="#0D0D0D"
+                                               FontSize="10" FontAttributes="Bold"
+                                               CharacterSpacing="1" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
 
             <!-- Menú -->
             <VerticalStackLayout Padding="20,0" Spacing="2">

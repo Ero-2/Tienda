@@ -83,5 +83,23 @@ public static class ClientesEndpoints
         })
         .WithName("EliminarDireccion")
         .WithSummary("Elimina una dirección del cliente");
+
+        // GET /api/clientes/{id}/credito
+        group.MapGet("/{id:int}/credito", async (int id, ClienteService service) =>
+        {
+            var credito = await service.GetCreditoAsync(id);
+            return credito is null ? Results.NotFound() : Results.Ok(credito);
+        })
+        .WithName("GetCredito")
+        .WithSummary("Obtiene el crédito disponible del cliente");
+
+        // POST /api/clientes/{id}/credito/debitar
+        group.MapPost("/{id:int}/credito/debitar", async (int id, DebitarCreditoRequest req, ClienteService service) =>
+        {
+            var (result, error) = await service.DebitarCreditoAsync(id, req.Monto);
+            return error is null ? Results.Ok(result) : Results.BadRequest(new { error });
+        })
+        .WithName("DebitarCredito")
+        .WithSummary("Debita monto del crédito del cliente");
     }
 }
