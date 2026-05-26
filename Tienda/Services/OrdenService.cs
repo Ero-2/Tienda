@@ -71,6 +71,17 @@ public class OrdenService : IOrdenService
                ?? new List<OrdenResponse>();
     }
 
+    public async Task<OrdenResponse?> ObtenerOrdenPorIdAsync(int id)
+    {
+        SetAuthHeader();
+
+        var response = await _http.GetAsync($"/api/ordenes/{id}");
+        if (!response.IsSuccessStatusCode) return null;
+
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<OrdenResponse>(json, JsonOpts);
+    }
+
     private void SetAuthHeader()
     {
         var token = _auth.GetToken();

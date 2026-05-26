@@ -1,3 +1,4 @@
+using Envios.API.Consumers;
 using Envios.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Envios.API.Endpoints;
@@ -17,8 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<OrdenCreadaConsumer>();
 
-// ¡AQUÍ ESTABA EL ERROR! Lo correcto es builder.Build();
+// ï¿½AQUï¿½ ESTABA EL ERROR! Lo correcto es builder.Build();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

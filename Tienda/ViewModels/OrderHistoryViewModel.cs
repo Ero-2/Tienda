@@ -34,6 +34,7 @@ public partial class OrderHistoryViewModel : ObservableObject
             Orders = new ObservableCollection<Order>(
                 resultado.Select(o => new Order
                 {
+                    RawId  = o.Id,
                     Id     = $"#{o.Id}",
                     Date   = o.CreadoEn,
                     Total  = o.Total,
@@ -51,6 +52,20 @@ public partial class OrderHistoryViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task GoToDetailAsync(Order order)
+    {
+        await Shell.Current.GoToAsync("OrderDetailPage",
+            new Dictionary<string, object> { ["OrdenId"] = order.RawId });
+    }
+
+    [RelayCommand]
+    private async Task GoToTrackingAsync(Order order)
+    {
+        await Shell.Current.GoToAsync("OrderTrackingPage",
+            new Dictionary<string, object> { ["OrderId"] = order.RawId.ToString() });
     }
 
     private static string MapEstado(string estado) => estado switch

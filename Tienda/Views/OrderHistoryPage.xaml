@@ -73,12 +73,17 @@
                             StrokeThickness="0"
                             Padding="18,18"
                             Margin="0,0,0,2">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.GoToDetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
 
                         <!-- Línea accent izquierda -->
                         <Grid ColumnDefinitions="3, *" ColumnSpacing="16">
                             <BoxView Grid.Column="0" Color="#CCFF00"
                                      VerticalOptions="Fill" />
-                            <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="12">
+                            <Grid Grid.Column="1" RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
 
                                 <!-- ID + Fecha -->
                                 <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
@@ -117,6 +122,26 @@
                                                CharacterSpacing="1.5" />
                                     </Border>
                                 </Grid>
+
+                                <!-- Rastreo link -->
+                                <Border Grid.Row="2"
+                                        BackgroundColor="Transparent"
+                                        StrokeShape="RoundRectangle 0"
+                                        StrokeThickness="0">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.GoToTrackingCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="Ver seguimiento"
+                                               TextColor="#606060"
+                                               FontSize="11" />
+                                        <Label Text="→"
+                                               TextColor="#CCFF00"
+                                               FontSize="11" />
+                                    </HorizontalStackLayout>
+                                </Border>
 
                             </Grid>
                         </Grid>

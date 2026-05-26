@@ -3,6 +3,7 @@ namespace Tienda.Models;
 
 public class Order
 {
+    public int RawId { get; set; }
     public string Id { get; set; } = string.Empty;
     public DateTime Date { get; set; }
     public decimal Total { get; set; }

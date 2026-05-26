@@ -7,6 +7,12 @@ services:
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/1433' 2>/dev/null && echo ok || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -29,8 +35,10 @@ services:
       RabbitMQ__User: admin
       RabbitMQ__Password: Admin_12345
     depends_on:
-      - sqlserver
-      - rabbitmq
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
   ms-clientes:
     build:
@@ -43,7 +51,8 @@ services:
       Jwt__Issuer: "ApiGateway.TiendaDepartamental"
       Jwt__Audience: "TiendaDepartamental.Clientes"
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
 
   ms-productos:
     build:
@@ -53,7 +62,8 @@ services:
     environment:
       ConnectionStrings__SqlServer: "Server=sqlserver;Database=ProductosDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
 
   ms-pagos:
     build:
@@ -67,8 +77,10 @@ services:
       RabbitMQ__User: admin
       RabbitMQ__Password: Admin_12345
     depends_on:
-      - sqlserver
-      - rabbitmq
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
   postgres:
     image: postgres:16
@@ -87,8 +99,15 @@ services:
       - "5005:8080"
     environment:
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EnviosDb;User Id=sa;Password=Admin_12345;TrustServerCertificate=True;"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__User: admin
+      RabbitMQ__Password: Admin_12345
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
   ms-promociones:
     build:

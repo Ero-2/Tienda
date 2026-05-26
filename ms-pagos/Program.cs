@@ -34,11 +34,15 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Migración automática
+// Migración automática con retry
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PagosDbContext>();
-    db.Database.Migrate();
+    for (int i = 0; i < 10; i++)
+    {
+        try { db.Database.Migrate(); break; }
+        catch when (i < 9) { Thread.Sleep(3000); }
+    }
 }
 
 app.MapGet("/", () => "MS Pagos corriendo ✅");

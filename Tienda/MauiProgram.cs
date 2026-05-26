@@ -56,6 +56,7 @@ public static class MauiProgram
         builder.Services.AddTransient<NotificationsViewModel>();
         builder.Services.AddTransient<PaymentViewModel>();
         builder.Services.AddTransient<CuotasViewModel>();
+        builder.Services.AddTransient<OrderDetailViewModel>();
 
         // Views
 
@@ -71,6 +72,7 @@ public static class MauiProgram
         builder.Services.AddTransient<PaymentPage>();
         builder.Services.AddTransient<PromocionesPage>();
         builder.Services.AddTransient<CuotasPage>();
+        builder.Services.AddTransient<OrderDetailPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

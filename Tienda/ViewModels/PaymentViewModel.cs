@@ -151,7 +151,7 @@ public partial class PaymentViewModel : ObservableObject
             {
                 _cartService.Clear();
                 await Shell.Current.GoToAsync("OrderTrackingPage",
-                    new Dictionary<string, object> { ["OrderId"] = $"#{orden.Id}" });
+                    new Dictionary<string, object> { ["OrderId"] = orden.Id.ToString() });
             }
             else
             {
@@ -185,7 +185,7 @@ public partial class PaymentViewModel : ObservableObject
 
             _cartService.Clear();
             await Shell.Current.GoToAsync("OrderTrackingPage",
-                new Dictionary<string, object> { ["OrderId"] = $"#{orden.Id}" });
+                new Dictionary<string, object> { ["OrderId"] = orden.Id.ToString() });
         }
         catch (Exception ex) { ErrorMessage = ex.Message; }
         finally { IsLoading = false; }

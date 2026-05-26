@@ -27,7 +27,11 @@ using (var scope = app.Services.CreateScope())
     var db     = scope.ServiceProvider.GetRequiredService<ProductosDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DummyJsonSeeder>();
 
-    db.Database.EnsureCreated();
+    for (int i = 0; i < 10; i++)
+    {
+        try { db.Database.EnsureCreated(); break; }
+        catch when (i < 9) { Thread.Sleep(3000); }
+    }
     await seeder.SeedAsync(db);
 }
 

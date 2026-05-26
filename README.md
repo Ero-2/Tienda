@@ -149,6 +149,38 @@ dotnet run -f net10.0-windows10.0.19041.0
 
 ---
 
+## Vistas implementadas (sesiones recientes)
+
+| Feature | Descripción |
+|---|---|
+| **Crédito por cuenta** | Crédito aleatorio $200/$500/$1000 al registrar. Pago sin tarjeta. |
+| **Meses sin interés (MSI)** | 3/6/9 MSI según monto. Cobra solo primera cuota, genera plan de pagos. |
+| **Envío gratis ≥ $50** | ms-envios calcula costo; mensaje "faltan $X para envío gratis". |
+| **Perfil dinámico** | Crédito + historial órdenes + planes MSI activos + direcciones. |
+| **Detalle de orden** | Lista items, subtotal, descuento, total, modalidad, estado. Botón rastreo. |
+| **Rastreo con NumRastreo real** | ms-envios consume `orden.creada` vía RabbitMQ → genera `TDA-{yyyyMM}-{xxxxxx}`. |
+| **Descuentos** | Electrónicos 5% siempre. Otros 10% si subtotal ≥ $1,000. |
+| **Healthcheck SQL Server** | TCP check en docker-compose; ms-* arrancan solo cuando SQL Server está listo. |
+
+---
+
+## Pendientes / Próximas implementaciones
+
+| Feature | Detalle |
+|---|---|
+| **Historial de cuotas completadas** | Mostrar en perfil qué planes MSI ya terminó el usuario |
+| **Recargar / aumentar crédito** | Formulario o lógica para subir el límite de crédito |
+| **Notificaciones push de cuota** | Aviso cuando una cuota MSI está por vencer |
+| **Formulario de dirección** | AccountPage tiene "Próximamente" — conectar con ms-clientes |
+| **Carrier real en envíos** | NumRastreo actual es mock (TDA-xxxxxx). Integrar FedEx/DHL/UPS API |
+| **Actualización de estado de envío** | El `PUT /api/envios/{id}/estado` existe pero nadie lo llama automáticamente |
+| **Filtro de historial de órdenes** | Por fecha, estado, monto |
+| **Detalle de orden desde notificaciones** | Deep link a OrderDetailPage |
+| **Admin panel** | CRUD productos, gestión órdenes, actualizar estados de envío |
+| **Refresh token** | JWT actual no tiene renovación automática |
+
+---
+
 ## Credenciales por defecto (desarrollo)
 
 | Servicio | Usuario | Contraseña |

@@ -26,11 +26,15 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Migración automática al iniciar
+// Migración automática con retry (SQL Server puede tardar en estar listo)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<OrdenesDbContext>();
-    db.Database.Migrate();
+    for (int i = 0; i < 10; i++)
+    {
+        try { db.Database.Migrate(); break; }
+        catch when (i < 9) { Thread.Sleep(3000); }
+    }
 }
 
 app.MapGet("/", () => "MS Órdenes corriendo ✅");
