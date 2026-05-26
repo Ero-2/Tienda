@@ -33,6 +33,17 @@ using (var scope = app.Services.CreateScope())
     catch { }
     try { db.Database.ExecuteSqlRaw("ALTER TABLE Clientes ADD CreditoDisponible DECIMAL(18,2) NOT NULL DEFAULT 0"); }
     catch { }
+
+    // Asignar crédito aleatorio a usuarios que aún tienen $0
+    try
+    {
+        db.Database.ExecuteSqlRaw(@"
+            UPDATE Clientes
+            SET LimiteCredito     = CASE (Id % 3) WHEN 0 THEN 200 WHEN 1 THEN 500 ELSE 1000 END,
+                CreditoDisponible = CASE (Id % 3) WHEN 0 THEN 200 WHEN 1 THEN 500 ELSE 1000 END
+            WHERE LimiteCredito = 0");
+    }
+    catch { }
 }
 
 app.MapGet("/", () => "MS Clientes corriendo ✅");

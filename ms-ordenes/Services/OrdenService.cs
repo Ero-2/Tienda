@@ -34,11 +34,11 @@ public class OrdenService
         decimal total = subtotal - descuentoMonto;
 
         // 3. Calcular meses MSI
-        int mesesMsi = request.ModalidadPago switch
+        int mesesMsi = (request.ModalidadPago ?? "").ToLower().Replace(" ", "") switch
         {
             "3msi" => 3,
             "6msi" => 6,
-            "12msi" => 12,
+            "9msi" => 9,
             _ => 0
         };
 

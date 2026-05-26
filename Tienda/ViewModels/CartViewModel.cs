@@ -29,14 +29,29 @@ public partial class CartViewModel : ObservableObject
     {
         get
         {
-            var meses = SelectedPayment switch { "3 MSI" => 3, "6 MSI" => 6, "12 MSI" => 12, _ => 0 };
+            var meses = SelectedPayment switch { "3 MSI" => 3, "6 MSI" => 6, "9 MSI" => 9, _ => 0 };
             return (meses == 0 || Total <= 0) ? string.Empty : $"{meses} pagos de ${Total / meses:F2}/mes";
         }
     }
     public bool EsPagoCredito => SelectedPayment == "Crédito";
 
-    public List<string> PaymentOptions { get; } =
-        ["Contado", "3 MSI", "6 MSI", "12 MSI", "Crédito"];
+    // Opciones MSI disponibles según el total:
+    //   < $50   → solo Contado + Crédito
+    //   $50–149 → + 3 MSI
+    //   $150–299→ + 6 MSI
+    //   ≥ $300  → + 9 MSI
+    public List<string> PaymentOptions
+    {
+        get
+        {
+            var opts = new List<string> { "Contado" };
+            if (Total >= 50m)  opts.Add("3 MSI");
+            if (Total >= 150m) opts.Add("6 MSI");
+            if (Total >= 300m) opts.Add("9 MSI");
+            opts.Add("Crédito");
+            return opts;
+        }
+    }
 
     public CartViewModel(
         ICartService     cartService,
@@ -90,6 +105,12 @@ public partial class CartViewModel : ObservableObject
 
         OnPropertyChanged(nameof(TotalItemCount));
         OnPropertyChanged(nameof(MsiLabel));
+        OnPropertyChanged(nameof(PaymentOptions));
+
+        // Resetear a Contado si la opción ya no aplica con el nuevo total
+        if (SelectedPayment != "Contado" && SelectedPayment != "Crédito" &&
+            !PaymentOptions.Contains(SelectedPayment))
+            SelectedPayment = "Contado";
     }
 
     private async Task RefreshEnvioAsync()

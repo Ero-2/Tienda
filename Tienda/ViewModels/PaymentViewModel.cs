@@ -43,7 +43,7 @@ public partial class PaymentViewModel : ObservableObject
     {
         get
         {
-            var meses = ModalidadPago switch { "3 MSI" => 3, "6 MSI" => 6, "12 MSI" => 12, _ => 0 };
+            var meses = ModalidadPago switch { "3 MSI" => 3, "6 MSI" => 6, "9 MSI" => 9, _ => 0 };
             return (meses == 0 || Total <= 0) ? string.Empty : $"{meses} pagos de ${Total / meses:F2}/mes";
         }
     }
