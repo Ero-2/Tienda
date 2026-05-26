@@ -31,6 +31,68 @@
                 </VerticalStackLayout>
             </Grid>
 
+            <!-- Selector modalidad de pago -->
+            <Label Text="MODALIDAD DE PAGO"
+                   TextColor="#3A3A3A" FontSize="9"
+                   FontAttributes="Bold" CharacterSpacing="2"
+                   Margin="0,0,0,8" />
+
+            <CollectionView ItemsSource="{Binding PaymentOptions}"
+                            SelectionMode="Single"
+                            SelectedItem="{Binding ModalidadPago}"
+                            HeightRequest="44"
+                            Margin="0,0,0,20">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Border StrokeShape="RoundRectangle 20"
+                                StrokeThickness="1"
+                                BackgroundColor="Transparent"
+                                Stroke="#252525"
+                                Padding="14,10">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                                <Setter Property="Stroke" Value="#252525" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="#CCFF00" />
+                                                <Setter Property="Stroke" Value="#CCFF00" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
+                            <Label Text="{Binding .}" FontSize="11" FontAttributes="Bold" CharacterSpacing="0.5">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="#666666" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="#0D0D0D" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
+                            </Label>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
             <!-- Desglose de pago -->
             <Border BackgroundColor="#111111"
                     StrokeShape="RoundRectangle 8"

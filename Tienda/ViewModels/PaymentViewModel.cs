@@ -48,6 +48,19 @@ public partial class PaymentViewModel : ObservableObject
         }
     }
 
+    public List<string> PaymentOptions
+    {
+        get
+        {
+            var opts = new List<string> { "Contado" };
+            if (Total >= 50m)  opts.Add("3 MSI");
+            if (Total >= 150m) opts.Add("6 MSI");
+            if (Total >= 300m) opts.Add("9 MSI");
+            opts.Add("Crédito");
+            return opts;
+        }
+    }
+
     partial void OnModalidadPagoChanged(string value)
     {
         OnPropertyChanged(nameof(MsiLabel));
@@ -55,7 +68,15 @@ public partial class PaymentViewModel : ObservableObject
         OnPropertyChanged(nameof(EsPagoTarjeta));
         if (value == "Crédito") _ = CargarCreditoAsync();
     }
-    partial void OnTotalChanged(decimal value) => OnPropertyChanged(nameof(MsiLabel));
+    partial void OnTotalChanged(decimal value)
+    {
+        OnPropertyChanged(nameof(MsiLabel));
+        OnPropertyChanged(nameof(PaymentOptions));
+        // Resetear si la opción ya no está disponible
+        if (ModalidadPago != "Contado" && ModalidadPago != "Crédito" &&
+            !PaymentOptions.Contains(ModalidadPago))
+            ModalidadPago = "Contado";
+    }
 
     public PaymentViewModel(
         IOrdenService   ordenService,
