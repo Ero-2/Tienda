@@ -28,6 +28,7 @@ public partial class PaymentViewModel : ObservableObject
 
     [ObservableProperty] private string  numeroTarjeta  = string.Empty;
     [ObservableProperty] private string  titular        = string.Empty;
+    [ObservableProperty] private string  email          = string.Empty;
     [ObservableProperty] private string  mesExpiracion  = string.Empty;
     [ObservableProperty] private string  anioExpiracion = string.Empty;
     [ObservableProperty] private string  cvv            = string.Empty;
@@ -152,24 +153,29 @@ public partial class PaymentViewModel : ObservableObject
             {
                 NumeroTarjeta = NumeroTarjeta.Replace(" ", ""),
                 NombreTitular = Titular,
+                Email         = Email,
                 Mes           = int.Parse(MesExpiracion),
                 Anio          = int.Parse(AnioExpiracion),
                 Cvv           = Cvv
             };
 
-            var resultado = await _pagosService.ConfirmarPagoAsync(checkout.Token, tarjeta);
+            var resultado = await _pagosService.ConfirmarPagoAsync(checkout.TokenCheckout, tarjeta);
             if (resultado is null) { ErrorMessage = "Error al procesar el pago."; return; }
 
             if (resultado.Estado == "aprobado")
-            {
                 _cartService.Clear();
-                await Shell.Current.GoToAsync("OrderDetailPage",
-                    new Dictionary<string, object> { ["OrdenId"] = orden.Id });
-            }
-            else
-            {
-                ErrorMessage = $"Pago {resultado.Estado}: {resultado.Mensaje}";
-            }
+
+            await Shell.Current.GoToAsync("PaymentResultPage",
+                new Dictionary<string, object>
+                {
+                    ["Estado"]             = resultado.Estado,
+                    ["Mensaje"]            = resultado.Mensaje,
+                    ["TransaccionId"]      = resultado.TransaccionId      ?? string.Empty,
+                    ["Monto"]              = (object)checkout.Monto,
+                    ["MarcaTarjeta"]       = resultado.MarcaTarjeta       ?? string.Empty,
+                    ["TarjetaEnmascarada"] = resultado.TarjetaEnmascarada ?? string.Empty,
+                    ["OrdenId"]            = (object)orden.Id
+                });
         }
         catch (Exception ex) { ErrorMessage = ex.Message; }
         finally { IsLoading = false; }
@@ -197,8 +203,14 @@ public partial class PaymentViewModel : ObservableObject
             if (!ok) { ErrorMessage = error ?? "Error al debitar crédito."; return; }
 
             _cartService.Clear();
-            await Shell.Current.GoToAsync("OrderDetailPage",
-                new Dictionary<string, object> { ["OrdenId"] = orden.Id });
+            await Shell.Current.GoToAsync("PaymentResultPage",
+                new Dictionary<string, object>
+                {
+                    ["Estado"]  = "aprobado",
+                    ["Mensaje"] = "Pago con crédito aplicado.",
+                    ["Monto"]   = (object)Total,
+                    ["OrdenId"] = (object)orden.Id
+                });
         }
         catch (Exception ex) { ErrorMessage = ex.Message; }
         finally { IsLoading = false; }

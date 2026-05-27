@@ -76,6 +76,9 @@ services:
       RabbitMQ__Port: "5672"
       RabbitMQ__User: admin
       RabbitMQ__Password: Admin_12345
+      OpenPay__MerchantId: "mcygu87wscna6wr5bwes"
+      OpenPay__PublicKey: "pk_df4e4734ad1245358618d303e0572ea5"
+      OpenPay__PrivateKey: "sk_2e9731beeaf04d63b0fefb4f23d733e9"
     depends_on:
       sqlserver:
         condition: service_healthy

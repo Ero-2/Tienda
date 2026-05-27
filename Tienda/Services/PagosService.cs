@@ -24,13 +24,22 @@ public class PagosService : IPagosService
     {
         SetAuthHeader();
 
-        // Obtiene el pago (con tokenCheckout) de la orden recién creada
-        var response = await _http.GetAsync($"/api/pagos/orden/{ordenId}");
-        if (!response.IsSuccessStatusCode) return null;
+        // ms-pagos crea el registro vía RabbitMQ (asíncrono) → retry hasta 8 veces
+        for (var intento = 0; intento < 8; intento++)
+        {
+            if (intento > 0)
+                await Task.Delay(1500);
 
-        var json  = await response.Content.ReadAsStringAsync();
-        var pagos = JsonSerializer.Deserialize<List<CheckoutInfo>>(json, JsonOpts);
-        return pagos?.FirstOrDefault();
+            var response = await _http.GetAsync($"/api/pagos/orden/{ordenId}");
+            if (!response.IsSuccessStatusCode) continue;
+
+            var json  = await response.Content.ReadAsStringAsync();
+            var pagos = JsonSerializer.Deserialize<List<CheckoutInfo>>(json, JsonOpts);
+            var found = pagos?.FirstOrDefault();
+            if (found is not null) return found;
+        }
+
+        return null;
     }
 
     public async Task<ConfirmacionPago?> ConfirmarPagoAsync(string token, TarjetaData tarjeta)
@@ -41,6 +50,7 @@ public class PagosService : IPagosService
         {
             numeroTarjeta = tarjeta.NumeroTarjeta,
             nombreTitular = tarjeta.NombreTitular,
+            email         = tarjeta.Email,
             mes           = tarjeta.Mes,
             anio          = tarjeta.Anio,
             cvv           = tarjeta.Cvv

@@ -26,10 +26,10 @@ public class PlanPagoInfo
 
 public class CheckoutInfo
 {
-    public string Token   { get; set; } = string.Empty;
-    public int    OrdenId { get; set; }
-    public decimal Monto  { get; set; }
-    public string Estado  { get; set; } = string.Empty;
+    public string  TokenCheckout { get; set; } = string.Empty;
+    public int     OrdenId       { get; set; }
+    public decimal Monto         { get; set; }
+    public string  Estado        { get; set; } = string.Empty;
 }
 
 public class ConfirmacionPago
@@ -46,6 +46,7 @@ public class TarjetaData
 {
     public string NumeroTarjeta  { get; set; } = string.Empty;
     public string NombreTitular  { get; set; } = string.Empty;
+    public string Email          { get; set; } = string.Empty;
     public int    Mes            { get; set; }
     public int    Anio           { get; set; }
     public string Cvv            { get; set; } = string.Empty;

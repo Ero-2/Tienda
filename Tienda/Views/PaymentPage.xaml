@@ -285,6 +285,20 @@
                        BackgroundColor="Transparent" HeightRequest="50" />
             </Border>
 
+            <Label Text="CORREO ELECTRÓNICO"
+                   TextColor="#3A3A3A" FontSize="9"
+                   FontAttributes="Bold" CharacterSpacing="2.5"
+                   Margin="0,0,0,8" />
+            <Border BackgroundColor="#111111" StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1" Stroke="#222222" Padding="16,0" Margin="0,0,0,16">
+                <Entry Text="{Binding Email}"
+                       Placeholder="correo@ejemplo.com"
+                       PlaceholderColor="#2A2A2A"
+                       TextColor="White" FontSize="14"
+                       Keyboard="Email"
+                       BackgroundColor="Transparent" HeightRequest="50" />
+            </Border>
+
             <!-- Exp + CVV -->
             <Grid ColumnDefinitions="*, 12, *, 12, *" Margin="0,0,0,20">
                 <VerticalStackLayout Grid.Column="0" Spacing="8">

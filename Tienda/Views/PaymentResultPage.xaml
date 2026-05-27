@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Tienda.ViewModels"
+             x:DataType="vm:PaymentResultViewModel"
+             x:Class="Tienda.Views.PaymentResultPage"
+             BackgroundColor="#0D0D0D"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,48,24,40" Spacing="0">
+
+            <!-- Icono estado -->
+            <Border WidthRequest="100"
+                    HeightRequest="100"
+                    StrokeShape="RoundRectangle 50"
+                    BackgroundColor="{Binding ColorFondo}"
+                    StrokeThickness="2"
+                    Stroke="{Binding ColorAccent}"
+                    HorizontalOptions="Center"
+                    Margin="0,0,0,24">
+                <Label Text="{Binding Icono}"
+                       TextColor="{Binding ColorAccent}"
+                       FontSize="42"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <!-- Título -->
+            <Label Text="{Binding Titulo}"
+                   TextColor="White"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   CharacterSpacing="2"
+                   HorizontalOptions="Center"
+                   Margin="0,0,0,8" />
+
+            <!-- Subtítulo -->
+            <Label Text="{Binding Subtitulo}"
+                   TextColor="#555555"
+                   FontSize="13"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,0,0,32" />
+
+            <!-- Tarjeta de detalle -->
+            <Border BackgroundColor="{Binding ColorFondo}"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="1"
+                    Stroke="{Binding ColorBorde}"
+                    Padding="20,18"
+                    Margin="0,0,0,12">
+                <VerticalStackLayout Spacing="14">
+
+                    <!-- Monto -->
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0"
+                               Text="MONTO"
+                               TextColor="#444444"
+                               FontSize="9"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding MontoFormateado}"
+                               TextColor="{Binding ColorAccent}"
+                               FontSize="22"
+                               FontAttributes="Bold" />
+                    </Grid>
+
+                    <BoxView Color="#1E1E1E" HeightRequest="1" />
+
+                    <!-- Transacción (solo aprobado) -->
+                    <VerticalStackLayout Spacing="4"
+                                         IsVisible="{Binding TieneTransaccion}">
+                        <Label Text="ID DE TRANSACCIÓN"
+                               TextColor="#444444"
+                               FontSize="9"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2" />
+                        <Label Text="{Binding TransaccionId}"
+                               TextColor="White"
+                               FontSize="12"
+                               FontAttributes="Bold" />
+                    </VerticalStackLayout>
+
+                    <!-- Tarjeta -->
+                    <VerticalStackLayout Spacing="4"
+                                         IsVisible="{Binding TieneTarjeta}">
+                        <Label Text="TARJETA"
+                               TextColor="#444444"
+                               FontSize="9"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="{Binding MarcaTarjeta}"
+                                   TextColor="#888888"
+                                   FontSize="12"
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding TarjetaEnmascarada}"
+                                   TextColor="#888888"
+                                   FontSize="12" />
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+
+                    <!-- Mensaje (rechazado / cancelado) -->
+                    <VerticalStackLayout Spacing="4"
+                                         IsVisible="{Binding EsAprobado, Converter={StaticResource InvertBoolConverter}}">
+                        <Label Text="MOTIVO"
+                               TextColor="#444444"
+                               FontSize="9"
+                               FontAttributes="Bold"
+                               CharacterSpacing="2" />
+                        <Label Text="{Binding Mensaje}"
+                               TextColor="{Binding ColorAccent}"
+                               FontSize="12" />
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Info extra rechazado -->
+            <Border BackgroundColor="#111111"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="#1E1E1E"
+                    Padding="16,12"
+                    Margin="0,0,0,32"
+                    IsVisible="{Binding EsRechazado}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="¿QUÉ PUEDO HACER?"
+                           TextColor="#444444"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2" />
+                    <Label Text="• Verifica que los datos de tu tarjeta sean correctos."
+                           TextColor="#666666" FontSize="11" />
+                    <Label Text="• Asegúrate de tener fondos suficientes."
+                           TextColor="#666666" FontSize="11" />
+                    <Label Text="• Intenta con otra tarjeta."
+                           TextColor="#666666" FontSize="11" />
+                    <Label Text="• Contacta a tu banco si el problema persiste."
+                           TextColor="#666666" FontSize="11" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Info extra cancelado -->
+            <Border BackgroundColor="#111111"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="#1E1E1E"
+                    Padding="16,12"
+                    Margin="0,0,0,32"
+                    IsVisible="{Binding EsCancelado}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="¿QUÉ OCURRIÓ?"
+                           TextColor="#444444"
+                           FontSize="9"
+                           FontAttributes="Bold"
+                           CharacterSpacing="2" />
+                    <Label Text="• El banco emisor canceló la transacción."
+                           TextColor="#666666" FontSize="11" />
+                    <Label Text="• Intenta de nuevo o usa una tarjeta diferente."
+                           TextColor="#666666" FontSize="11" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Espacio en aprobado para empujar botones -->
+            <BoxView HeightRequest="20"
+                     IsVisible="{Binding EsAprobado}" />
+
+            <!-- Botón primario -->
+            <Border BackgroundColor="{Binding ColorBotonPrimario}"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="0"
+                    Margin="0,0,0,12">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AccionPrimariaCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="{Binding TextoBotonPrimario}"
+                       TextColor="{Binding ColorTextoPrimario}"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       CharacterSpacing="2"
+                       HorizontalOptions="Center"
+                       Margin="0,18" />
+            </Border>
+
+            <!-- Botón secundario: Ir al inicio -->
+            <Border BackgroundColor="Transparent"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="#2E2E2E">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding IrAlInicioCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="IR AL INICIO"
+                       TextColor="#555555"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       CharacterSpacing="2"
+                       HorizontalOptions="Center"
+                       Margin="0,16" />
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
