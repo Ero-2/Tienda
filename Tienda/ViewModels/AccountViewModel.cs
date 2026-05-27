@@ -106,11 +106,73 @@ public partial class AccountViewModel : ObservableObject
         Addresses = new ObservableCollection<Address>(dirs);
     }
 
+    // Formulario nueva dirección
+    [ObservableProperty] private bool   isAddingAddress  = false;
+    [ObservableProperty] private string newNombre        = string.Empty;
+    [ObservableProperty] private string newCalle         = string.Empty;
+    [ObservableProperty] private string newCiudad        = string.Empty;
+    [ObservableProperty] private string newEstado        = string.Empty;
+    [ObservableProperty] private string newCodigoPostal  = string.Empty;
+    [ObservableProperty] private bool   newEsPrincipal   = false;
+    [ObservableProperty] private string addAddressError  = string.Empty;
+
     [RelayCommand]
-    private async Task AddAddressAsync()
+    private void AddAddress()
     {
-        await Shell.Current.DisplayAlert(
-            "Nueva dirección", "Próximamente: formulario para agregar dirección.", "OK");
+        NewNombre = NewCalle = NewCiudad = NewEstado = NewCodigoPostal = string.Empty;
+        NewEsPrincipal  = false;
+        AddAddressError = string.Empty;
+        IsAddingAddress = true;
+    }
+
+    [RelayCommand]
+    private void CancelAddAddress() => IsAddingAddress = false;
+
+    [RelayCommand]
+    private async Task SaveNewAddressAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewCalle) || string.IsNullOrWhiteSpace(NewCiudad))
+        {
+            AddAddressError = "Calle y ciudad son obligatorias.";
+            return;
+        }
+
+        AddAddressError = string.Empty;
+        var address = new Address
+        {
+            Name      = string.IsNullOrWhiteSpace(NewNombre) ? "Mi dirección" : NewNombre.Trim(),
+            Street    = NewCalle.Trim(),
+            City      = NewCiudad.Trim(),
+            State     = NewEstado.Trim(),
+            ZipCode   = NewCodigoPostal.Trim(),
+            Country   = "México",
+            IsDefault = NewEsPrincipal
+        };
+
+        var userId = _authService.GetUserId();
+        var result = await _clienteService.AgregarDireccionAsync(userId, address);
+
+        if (result is not null)
+        {
+            IsAddingAddress = false;
+            await LoadAddressesAsync();
+        }
+        else
+        {
+            AddAddressError = "No se pudo guardar. Verifica tu conexión.";
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteAddressAsync(Address address)
+    {
+        bool confirm = await Shell.Current.DisplayAlert(
+            "Eliminar", $"¿Eliminar \"{address.Name}\"?", "ELIMINAR", "CANCELAR");
+        if (!confirm) return;
+
+        var userId = _authService.GetUserId();
+        await _clienteService.EliminarDireccionAsync(userId, address.Id);
+        await LoadAddressesAsync();
     }
 
     [RelayCommand]

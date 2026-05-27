@@ -4,11 +4,12 @@ using Tienda.Services;
 
 namespace Tienda.ViewModels;
 
-[QueryProperty(nameof(ModalidadPago), "ModalidadPago")]
-[QueryProperty(nameof(Total),         "Total")]
-[QueryProperty(nameof(Subtotal),      "Subtotal")]
-[QueryProperty(nameof(Descuento),     "Descuento")]
-[QueryProperty(nameof(CostoEnvio),   "CostoEnvio")]
+[QueryProperty(nameof(ModalidadPago),    "ModalidadPago")]
+[QueryProperty(nameof(Total),           "Total")]
+[QueryProperty(nameof(Subtotal),        "Subtotal")]
+[QueryProperty(nameof(Descuento),       "Descuento")]
+[QueryProperty(nameof(CostoEnvio),      "CostoEnvio")]
+[QueryProperty(nameof(DireccionEntrega),"DireccionEntrega")]
 public partial class PaymentViewModel : ObservableObject
 {
     private readonly IOrdenService   _ordenService;
@@ -22,6 +23,8 @@ public partial class PaymentViewModel : ObservableObject
     [ObservableProperty] private decimal subtotal;
     [ObservableProperty] private decimal descuento;
     [ObservableProperty] private decimal costoEnvio;
+
+    [ObservableProperty] private string  direccionEntrega = string.Empty;
 
     [ObservableProperty] private string  numeroTarjeta  = string.Empty;
     [ObservableProperty] private string  titular        = string.Empty;
@@ -72,10 +75,20 @@ public partial class PaymentViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(MsiLabel));
         OnPropertyChanged(nameof(PaymentOptions));
-        // Resetear si la opción ya no está disponible
+        // Resetear si la opción ya no aplica con el nuevo total
         if (ModalidadPago != "Contado" && ModalidadPago != "Crédito" &&
             !PaymentOptions.Contains(ModalidadPago))
+        {
             ModalidadPago = "Contado";
+        }
+        else
+        {
+            // CollectionView pierde la selección cuando ItemsSource cambia.
+            // Toggle ModalidadPago para forzar que el binding re-aplique el SelectedItem.
+            var saved = ModalidadPago;
+            SetProperty(ref modalidadPago, string.Empty, nameof(ModalidadPago));
+            SetProperty(ref modalidadPago, saved, nameof(ModalidadPago));
+        }
     }
 
     public PaymentViewModel(
@@ -120,7 +133,7 @@ public partial class PaymentViewModel : ObservableObject
         try
         {
             var items  = _cartService.GetItems();
-            var orden  = await _ordenService.CrearOrdenAsync(items, ModalidadPago);
+            var orden  = await _ordenService.CrearOrdenAsync(items, ModalidadPago, DireccionEntrega);
 
             if (orden is null)
             {
@@ -150,8 +163,8 @@ public partial class PaymentViewModel : ObservableObject
             if (resultado.Estado == "aprobado")
             {
                 _cartService.Clear();
-                await Shell.Current.GoToAsync("OrderTrackingPage",
-                    new Dictionary<string, object> { ["OrderId"] = orden.Id.ToString() });
+                await Shell.Current.GoToAsync("OrderDetailPage",
+                    new Dictionary<string, object> { ["OrdenId"] = orden.Id });
             }
             else
             {
@@ -174,7 +187,7 @@ public partial class PaymentViewModel : ObservableObject
         try
         {
             var items = _cartService.GetItems();
-            var orden = await _ordenService.CrearOrdenAsync(items, "credito");
+            var orden = await _ordenService.CrearOrdenAsync(items, "credito", DireccionEntrega);
 
             if (orden is null) { ErrorMessage = "No se pudo crear la orden."; return; }
 
@@ -184,8 +197,8 @@ public partial class PaymentViewModel : ObservableObject
             if (!ok) { ErrorMessage = error ?? "Error al debitar crédito."; return; }
 
             _cartService.Clear();
-            await Shell.Current.GoToAsync("OrderTrackingPage",
-                new Dictionary<string, object> { ["OrderId"] = orden.Id.ToString() });
+            await Shell.Current.GoToAsync("OrderDetailPage",
+                new Dictionary<string, object> { ["OrdenId"] = orden.Id });
         }
         catch (Exception ex) { ErrorMessage = ex.Message; }
         finally { IsLoading = false; }

@@ -87,7 +87,7 @@ public class OrdenCreadaConsumer : BackgroundService
                                     OrderId          = evento.OrdenId,
                                     NumRastreo       = numRastreo,
                                     Estado           = "Preparando",
-                                    DireccionEntrega = string.Empty,
+                                    DireccionEntrega = evento.DireccionEntrega,
                                     FechaEstimada    = DateTime.UtcNow.AddDays(3)
                                 };
 
@@ -149,5 +149,6 @@ internal class OrdenCreadaDto
     public int OrdenId    { get; set; }
     public int ClienteId  { get; set; }
     public decimal Total  { get; set; }
+    public string DireccionEntrega { get; set; } = string.Empty;
     public DateTime CreadoEn { get; set; }
 }

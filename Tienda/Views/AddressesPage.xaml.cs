@@ -14,6 +14,12 @@ public partial class AddressesPage : ContentPage
     {
         base.OnAppearing();
         if (BindingContext is AccountViewModel vm)
+        {
+            vm.IsAddingAddress = false;
             await vm.LoadAddressesCommand.ExecuteAsync(null);
+        }
     }
+
+    private async void OnBackTapped(object sender, TappedEventArgs e) =>
+        await Shell.Current.GoToAsync("..");
 }

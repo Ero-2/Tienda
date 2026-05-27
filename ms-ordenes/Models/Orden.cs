@@ -11,6 +11,7 @@ public class Orden
     public decimal Total { get; set; }
     public string ModalidadPago { get; set; } = "contado"; // contado, 3msi, 6msi, 12msi
     public int MesesMsi { get; set; } = 0;
+    public string DireccionEntrega { get; set; } = string.Empty;
     public DateTime CreadoEn { get; set; } = DateTime.UtcNow;
     public DateTime ActualizadoEn { get; set; } = DateTime.UtcNow;
 

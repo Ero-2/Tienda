@@ -209,6 +209,94 @@
                        VerticalOptions="Center" />
             </Grid>
 
+            <!-- Dirección de entrega -->
+            <Label Text="DIRECCIÓN DE ENTREGA" TextColor="#3A3A3A" FontSize="9"
+                   FontAttributes="Bold" CharacterSpacing="2" Margin="0,4,0,6" />
+
+            <!-- Resumen dirección seleccionada -->
+            <Border BackgroundColor="#141414"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1"
+                    Stroke="#1E1E1E"
+                    Padding="14,10">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleAddressPickerCommand}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="*, Auto">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="{Binding SelectedAddress.Name, TargetNullValue='Sin dirección seleccionada'}"
+                               TextColor="White" FontSize="12" FontAttributes="Bold" />
+                        <Label Text="{Binding SelectedAddressLabel}"
+                               TextColor="#505050" FontSize="11" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="1" Text="⌄" TextColor="#CCFF00" FontSize="20"
+                           VerticalOptions="Center" Margin="8,0,0,0" />
+                </Grid>
+            </Border>
+
+            <!-- Lista de direcciones expandible -->
+            <CollectionView ItemsSource="{Binding UserAddresses}"
+                            SelectionMode="Single"
+                            SelectedItem="{Binding SelectedAddress}"
+                            IsVisible="{Binding ShowAddressPicker}"
+                            HeightRequest="150"
+                            Margin="0,4,0,0">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Address">
+                        <Border StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1"
+                                Padding="12,8">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                                <Setter Property="Stroke" Value="#252525" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="#0D1A00" />
+                                                <Setter Property="Stroke" Value="#CCFF00" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="1">
+                                    <Label Text="{Binding Name}"
+                                           TextColor="White" FontSize="12" FontAttributes="Bold" />
+                                    <Label Text="{Binding Street}"
+                                           TextColor="#606060" FontSize="11" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="✓" TextColor="#CCFF00"
+                                       FontSize="14" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Sin direcciones: link a agregar -->
+            <Border BackgroundColor="Transparent"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1"
+                    Stroke="#252525"
+                    Padding="0,10"
+                    IsVisible="{Binding TieneAddresses, Converter={StaticResource InvertBoolConverter}}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToAddressesCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="+ Agregar dirección de entrega"
+                       TextColor="#3A3A3A" FontSize="12"
+                       HorizontalOptions="Center" />
+            </Border>
+
             <!-- Modalidad de pago -->
             <Label Text="MODALIDAD DE PAGO" TextColor="#3A3A3A" FontSize="9"
                    FontAttributes="Bold" CharacterSpacing="2" Margin="0,4,0,2" />

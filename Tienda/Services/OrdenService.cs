@@ -21,15 +21,16 @@ public class OrdenService : IOrdenService
         _auth = auth;
     }
 
-    public async Task<OrdenResponse?> CrearOrdenAsync(List<CartItem> items, string modalidadPago)
+    public async Task<OrdenResponse?> CrearOrdenAsync(List<CartItem> items, string modalidadPago, string direccionEntrega = "")
     {
         SetAuthHeader();
 
         var request = new
         {
-            usuarioId     = _auth.GetUserId(),
-            modalidadPago = MapModalidad(modalidadPago),
-            items         = items.Select(i => new
+            usuarioId        = _auth.GetUserId(),
+            modalidadPago    = MapModalidad(modalidadPago),
+            direccionEntrega = direccionEntrega,
+            items            = items.Select(i => new
             {
                 productoId      = i.Product.Id,
                 nombreProducto  = i.Product.Name,

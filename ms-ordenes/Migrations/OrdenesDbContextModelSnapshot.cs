@@ -85,6 +85,11 @@ namespace MsOrdenes.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<string>("DireccionEntrega")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int>("MesesMsi")
                         .HasColumnType("int");
 

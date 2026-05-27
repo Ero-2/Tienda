@@ -5,7 +5,7 @@ namespace Tienda.Services;
 
 public interface IOrdenService
 {
-    Task<OrdenResponse?> CrearOrdenAsync(List<CartItem> items, string modalidadPago);
+    Task<OrdenResponse?> CrearOrdenAsync(List<CartItem> items, string modalidadPago, string direccionEntrega = "");
     Task<List<OrdenResponse>> ObtenerMisOrdenesAsync();
     Task<OrdenResponse?> ObtenerOrdenPorIdAsync(int id);
 }

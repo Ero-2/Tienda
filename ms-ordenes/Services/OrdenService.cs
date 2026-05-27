@@ -47,6 +47,7 @@ public class OrdenService
         {
             UsuarioId = request.UsuarioId,
             Estado = "pendiente",
+            DireccionEntrega = request.DireccionEntrega,
             Subtotal = subtotal,
             DescuentoPct = descuentoPct,
             DescuentoMonto = descuentoMonto,
@@ -78,6 +79,7 @@ public class OrdenService
             Descuento = orden.DescuentoMonto,
             ModalidadPago = orden.ModalidadPago,
             MesesMsi = orden.MesesMsi,
+            DireccionEntrega = orden.DireccionEntrega,
             CreadoEn = DateTime.UtcNow,
             Items = orden.Items.Select(i => new ItemEvent
             {

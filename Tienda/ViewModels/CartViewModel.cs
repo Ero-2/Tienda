@@ -9,10 +9,11 @@ namespace Tienda.ViewModels;
 
 public partial class CartViewModel : ObservableObject
 {
-    private readonly ICartService    _cartService;
-    private readonly IAuthService    _authService;
+    private readonly ICartService     _cartService;
+    private readonly IAuthService     _authService;
     private readonly IPromocionService _promoService;
-    private readonly IEnvioService   _envioService;
+    private readonly IEnvioService    _envioService;
+    private readonly IClienteService  _clienteService;
 
     [ObservableProperty] private ObservableCollection<CartItem> items = new();
     [ObservableProperty] private decimal subtotal;
@@ -23,6 +24,23 @@ public partial class CartViewModel : ObservableObject
     [ObservableProperty] private string  discountLabel   = string.Empty;
     [ObservableProperty] private string  envioLabel      = string.Empty;
     [ObservableProperty] private bool    envioGratis;
+
+    // Dirección de entrega
+    [ObservableProperty] private ObservableCollection<Address> userAddresses = new();
+    [ObservableProperty] private Address? selectedAddress;
+    [ObservableProperty] private bool     showAddressPicker = false;
+
+    public bool TieneAddresses => UserAddresses.Any();
+    public string SelectedAddressLabel =>
+        SelectedAddress is null
+            ? "Selecciona una dirección de entrega"
+            : $"{SelectedAddress.Street}, {SelectedAddress.City}";
+
+    partial void OnSelectedAddressChanged(Address? value)
+    {
+        ShowAddressPicker = false;
+        OnPropertyChanged(nameof(SelectedAddressLabel));
+    }
 
     public int    TotalItemCount => Items.Sum(i => i.Quantity);
     public string MsiLabel
@@ -54,15 +72,17 @@ public partial class CartViewModel : ObservableObject
     }
 
     public CartViewModel(
-        ICartService     cartService,
-        IAuthService     authService,
+        ICartService      cartService,
+        IAuthService      authService,
         IPromocionService promoService,
-        IEnvioService    envioService)
+        IEnvioService     envioService,
+        IClienteService   clienteService)
     {
-        _cartService  = cartService;
-        _authService  = authService;
-        _promoService = promoService;
-        _envioService = envioService;
+        _cartService    = cartService;
+        _authService    = authService;
+        _promoService   = promoService;
+        _envioService   = envioService;
+        _clienteService = clienteService;
         LoadCart();
     }
 
@@ -78,7 +98,25 @@ public partial class CartViewModel : ObservableObject
         RecalculateTotals();
         _ = RefreshEnvioAsync();
         _ = ApplyPromoLabelAsync();
+        _ = LoadAddressesAsync();
     }
+
+    private async Task LoadAddressesAsync()
+    {
+        if (!_authService.IsLoggedIn) return;
+        var dirs = await _clienteService.GetDireccionesAsync(_authService.GetUserId());
+        UserAddresses = new ObservableCollection<Address>(dirs);
+        SelectedAddress = dirs.FirstOrDefault(d => d.IsDefault) ?? dirs.FirstOrDefault();
+        OnPropertyChanged(nameof(TieneAddresses));
+        OnPropertyChanged(nameof(SelectedAddressLabel));
+    }
+
+    [RelayCommand]
+    private void ToggleAddressPicker() => ShowAddressPicker = !ShowAddressPicker;
+
+    [RelayCommand]
+    private async Task GoToAddressesAsync() =>
+        await Shell.Current.GoToAsync("AddressesPage");
 
     private void RecalculateTotals()
     {
@@ -200,14 +238,18 @@ public partial class CartViewModel : ObservableObject
 
         if (!confirm) return;
 
+        var dirStr = SelectedAddress is null ? string.Empty
+            : $"{SelectedAddress.Street}, {SelectedAddress.City}, {SelectedAddress.State} {SelectedAddress.ZipCode}".Trim();
+
         await Shell.Current.GoToAsync("PaymentPage",
             new Dictionary<string, object>
             {
-                ["ModalidadPago"] = SelectedPayment,
-                ["Total"]         = Total,
-                ["Subtotal"]      = Subtotal,
-                ["Descuento"]     = Discount,
-                ["CostoEnvio"]    = CostoEnvio
+                ["ModalidadPago"]    = SelectedPayment,
+                ["Total"]            = Total,
+                ["Subtotal"]         = Subtotal,
+                ["Descuento"]        = Discount,
+                ["CostoEnvio"]       = CostoEnvio,
+                ["DireccionEntrega"] = dirStr
             });
     }
 }

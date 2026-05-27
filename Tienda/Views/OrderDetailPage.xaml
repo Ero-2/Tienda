@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Tienda.ViewModels"
+             xmlns:models="clr-namespace:Tienda.Models"
              x:DataType="vm:OrderDetailViewModel"
              x:Class="Tienda.Views.OrderDetailPage"
              BackgroundColor="#0D0D0D"
@@ -24,15 +25,12 @@
                 <Label Text="←" TextColor="White" FontSize="18"
                        HorizontalOptions="Center" VerticalOptions="Center" />
             </Border>
-
             <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                 <Label Text="{Binding OrdenLabel}"
                        TextColor="White" FontSize="18"
                        FontAttributes="Bold" CharacterSpacing="2" />
                 <BoxView HeightRequest="2" WidthRequest="40" Color="#CCFF00" HorizontalOptions="Start" />
             </VerticalStackLayout>
-
-            <!-- Estado badge -->
             <Border Grid.Column="2"
                     BackgroundColor="#111111"
                     StrokeShape="RoundRectangle 20"
@@ -46,7 +44,7 @@
             </Border>
         </Grid>
 
-        <!-- Loading -->
+        <!-- Loading orden -->
         <ActivityIndicator Grid.Row="1"
                            IsRunning="{Binding IsLoading}"
                            IsVisible="{Binding IsLoading}"
@@ -68,11 +66,10 @@
         </VerticalStackLayout>
 
         <!-- Contenido -->
-        <ScrollView Grid.Row="1"
-                    IsVisible="{Binding IsContentVisible}">
-            <VerticalStackLayout Spacing="0" Padding="0,0,0,32">
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsContentVisible}">
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,40">
 
-                <!-- Meta: fecha + modalidad -->
+                <!-- Fecha + modalidad -->
                 <Grid ColumnDefinitions="*, *" Padding="20,0,20,20" ColumnSpacing="12">
                     <VerticalStackLayout Grid.Column="0" Spacing="3">
                         <Label Text="FECHA" TextColor="#3A3A3A" FontSize="9"
@@ -87,18 +84,15 @@
                     </VerticalStackLayout>
                 </Grid>
 
-                <!-- Separador -->
                 <BoxView Color="#161616" HeightRequest="1" Margin="20,0,20,20" />
 
-                <!-- Título items -->
+                <!-- Productos -->
                 <Label Text="PRODUCTOS"
                        TextColor="#3A3A3A" FontSize="9"
                        FontAttributes="Bold" CharacterSpacing="2.5"
                        Margin="20,0,20,12" />
 
-                <!-- Lista de items -->
-                <CollectionView ItemsSource="{Binding Items}"
-                                Margin="20,0,20,0">
+                <CollectionView ItemsSource="{Binding Items}" Margin="20,0,20,0">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="vm:ItemDetalleVm">
                             <Border BackgroundColor="#111111"
@@ -107,8 +101,6 @@
                                     Padding="16,14"
                                     Margin="0,0,0,2">
                                 <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="14">
-
-                                    <!-- Qty bubble -->
                                     <Border Grid.Column="0"
                                             BackgroundColor="#1C1C1C"
                                             StrokeShape="RoundRectangle 6"
@@ -121,22 +113,16 @@
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center" />
                                     </Border>
-
-                                    <!-- Nombre + precio unit -->
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="3">
                                         <Label Text="{Binding Nombre}"
-                                               TextColor="White"
-                                               FontSize="13" FontAttributes="Bold"
+                                               TextColor="White" FontSize="13" FontAttributes="Bold"
                                                LineBreakMode="TailTruncation" />
                                         <Label Text="{Binding PrecioUnit, StringFormat='${0:F2} c/u'}"
                                                TextColor="#404040" FontSize="11" />
                                     </VerticalStackLayout>
-
-                                    <!-- Subtotal item -->
                                     <Label Grid.Column="2"
                                            Text="{Binding Subtotal, StringFormat='${0:F2}'}"
-                                           TextColor="White"
-                                           FontSize="14" FontAttributes="Bold"
+                                           TextColor="White" FontSize="14" FontAttributes="Bold"
                                            VerticalOptions="Center" />
                                 </Grid>
                             </Border>
@@ -144,69 +130,154 @@
                     </CollectionView.ItemTemplate>
                 </CollectionView>
 
-                <!-- Separador -->
                 <BoxView Color="#161616" HeightRequest="1" Margin="20,20,20,20" />
 
                 <!-- Totales -->
                 <VerticalStackLayout Padding="20,0" Spacing="10">
-
-                    <!-- Subtotal -->
                     <Grid ColumnDefinitions="*, Auto">
-                        <Label Grid.Column="0" Text="Subtotal"
-                               TextColor="#606060" FontSize="13" />
+                        <Label Grid.Column="0" Text="Subtotal" TextColor="#606060" FontSize="13" />
                         <Label Grid.Column="1"
                                Text="{Binding Subtotal, StringFormat='${0:F2}'}"
                                TextColor="#808080" FontSize="13" />
                     </Grid>
-
-                    <!-- Descuento (si aplica) -->
                     <Grid ColumnDefinitions="*, Auto" IsVisible="{Binding TieneDescuento}">
-                        <Label Grid.Column="0" Text="Descuento"
-                               TextColor="#606060" FontSize="13" />
+                        <Label Grid.Column="0" Text="Descuento" TextColor="#606060" FontSize="13" />
                         <Label Grid.Column="1"
                                Text="{Binding Descuento, StringFormat='-${0:F2}'}"
                                TextColor="#CCFF00" FontSize="13" />
                     </Grid>
-
-                    <!-- Divider -->
                     <BoxView Color="#1E1E1E" HeightRequest="1" />
-
-                    <!-- Total -->
                     <Grid ColumnDefinitions="*, Auto">
                         <Label Grid.Column="0" Text="TOTAL"
                                TextColor="White" FontSize="16"
                                FontAttributes="Bold" CharacterSpacing="1" />
                         <Label Grid.Column="1"
                                Text="{Binding Total, StringFormat='${0:F2}'}"
-                               TextColor="#CCFF00" FontSize="20"
-                               FontAttributes="Bold" />
+                               TextColor="#CCFF00" FontSize="20" FontAttributes="Bold" />
                     </Grid>
-
                 </VerticalStackLayout>
 
-                <!-- Botón rastreo -->
+                <!-- ══ SECCIÓN ENVÍO ══ -->
+                <BoxView Color="#161616" HeightRequest="1" Margin="20,20,20,20" />
+
+                <Label Text="SEGUIMIENTO DE ENVÍO"
+                       TextColor="#3A3A3A" FontSize="9"
+                       FontAttributes="Bold" CharacterSpacing="2.5"
+                       Margin="20,0,20,14" />
+
+                <!-- Loading envío -->
+                <HorizontalStackLayout HorizontalOptions="Center"
+                                       IsVisible="{Binding IsLoadingEnvio}"
+                                       Spacing="8" Margin="0,0,0,16">
+                    <ActivityIndicator IsRunning="True" Color="#CCFF00"
+                                       WidthRequest="16" HeightRequest="16" />
+                    <Label Text="Cargando estado de envío..."
+                           TextColor="#3A3A3A" FontSize="11" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Pipeline card -->
                 <Border BackgroundColor="#111111"
-                        StrokeShape="RoundRectangle 8"
+                        StrokeShape="RoundRectangle 10"
                         StrokeThickness="1"
                         Stroke="#1E1E1E"
-                        Padding="18,16"
-                        Margin="20,20,20,0">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding GoToTrackingCommand}" />
-                    </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="14">
-                        <BoxView Grid.Column="0" Color="#CCFF00" WidthRequest="3" HeightRequest="24"
-                                 VerticalOptions="Center" />
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                            <Label Text="SEGUIMIENTO DE ENVÍO"
-                                   TextColor="White" FontSize="13"
-                                   FontAttributes="Bold" CharacterSpacing="0.5" />
-                            <Label Text="Ver número de rastreo y estado"
-                                   TextColor="#404040" FontSize="11" />
+                        Padding="20,18"
+                        Margin="20,0,20,0"
+                        IsVisible="{Binding TieneEnvio}">
+                    <VerticalStackLayout Spacing="16">
+
+                        <!-- NumRastreo + Estado badge -->
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                <Label Text="N° RASTREO" TextColor="#3A3A3A" FontSize="9"
+                                       FontAttributes="Bold" CharacterSpacing="2" />
+                                <Label Text="{Binding NumRastreo}"
+                                       TextColor="#CCFF00" FontSize="15" FontAttributes="Bold"
+                                       CharacterSpacing="1" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#0D1A00"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="1"
+                                    Stroke="#CCFF0044"
+                                    Padding="12,6"
+                                    VerticalOptions="Center">
+                                <Label Text="{Binding EstadoEnvio}"
+                                       TextColor="#CCFF00" FontSize="9"
+                                       FontAttributes="Bold" CharacterSpacing="1" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Fecha estimada -->
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Grid.Column="0" Text="ENTREGA ESTIMADA"
+                                   TextColor="#3A3A3A" FontSize="9"
+                                   FontAttributes="Bold" CharacterSpacing="2"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding FechaEstimada}"
+                                   TextColor="#808080" FontSize="12" />
+                        </Grid>
+
+                        <!-- Dirección (si existe) -->
+                        <VerticalStackLayout Spacing="4"
+                                             IsVisible="{Binding TieneDireccion}">
+                            <Label Text="DIRECCIÓN DE ENTREGA" TextColor="#3A3A3A" FontSize="9"
+                                   FontAttributes="Bold" CharacterSpacing="2" />
+                            <Label Text="{Binding DireccionEntrega}"
+                                   TextColor="#808080" FontSize="12"
+                                   LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="›" TextColor="#404040" FontSize="22"
-                               VerticalOptions="Center" />
-                    </Grid>
+
+                        <BoxView Color="#1E1E1E" HeightRequest="1" />
+
+                        <!-- Pasos del pipeline -->
+                        <CollectionView ItemsSource="{Binding EnvioSteps}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:OrderStep">
+                                    <Grid ColumnDefinitions="28, 12, *"
+                                          Margin="0,0,0,0"
+                                          MinimumHeightRequest="48">
+
+                                        <!-- Columna izquierda: círculo + línea -->
+                                        <VerticalStackLayout Grid.Column="0"
+                                                             HorizontalOptions="Center"
+                                                             Spacing="0">
+                                            <Border StrokeShape="RoundRectangle 14"
+                                                    WidthRequest="28" HeightRequest="28"
+                                                    StrokeThickness="2"
+                                                    BackgroundColor="{Binding StatusBackground}"
+                                                    Stroke="{Binding StatusColor}"
+                                                    HorizontalOptions="Center">
+                                                <Label Text="{Binding StatusIcon}"
+                                                       TextColor="{Binding StatusColor}"
+                                                       FontSize="12" FontAttributes="Bold"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+                                            <!-- Línea conectora -->
+                                            <BoxView Color="#252525"
+                                                     WidthRequest="1"
+                                                     HeightRequest="20"
+                                                     HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+
+                                        <!-- Info del paso -->
+                                        <VerticalStackLayout Grid.Column="2"
+                                                             Spacing="2"
+                                                             VerticalOptions="Start"
+                                                             Margin="0,4,0,0">
+                                            <Label Text="{Binding Title}"
+                                                   TextColor="{Binding TitleColor}"
+                                                   FontSize="13" FontAttributes="Bold" />
+                                            <Label Text="{Binding Subtitle}"
+                                                   TextColor="#505050" FontSize="11" />
+                                        </VerticalStackLayout>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </VerticalStackLayout>
                 </Border>
 
             </VerticalStackLayout>
