@@ -35,7 +35,7 @@
             </Border>
         </Grid>
 
-        <!-- Items -->
+        <!-- Items + resumen (un solo scroll) -->
         <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Items}"
                         Margin="0,0,0,4">
@@ -153,263 +153,193 @@
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
+
+            <!-- Resumen + dirección: viajan dentro del scroll, no en un footer fijo -->
+            <CollectionView.Footer>
+                <VerticalStackLayout Padding="20,16,20,24" Spacing="10"
+                                     IsVisible="{Binding TotalItemCount, Converter={StaticResource NotEmptyConverter}}">
+
+                    <BoxView Color="#1E1E1E" HeightRequest="1" />
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="SUBTOTAL" TextColor="#505050"
+                               FontSize="10" FontAttributes="Bold" CharacterSpacing="1.5"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:F2}'}"
+                               TextColor="White" FontSize="14" VerticalOptions="Center" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*, Auto"
+                          IsVisible="{Binding DiscountLabel, Converter={StaticResource NotEmptyConverter}}">
+                        <Label Grid.Column="0" Text="{Binding DiscountLabel}"
+                               TextColor="#505050" FontSize="10" FontAttributes="Bold"
+                               CharacterSpacing="1" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding Discount, StringFormat='-${0:F2}'}"
+                               TextColor="#CCFF00" FontSize="14" VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- Envío -->
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                            <Label Text="ENVÍO" TextColor="#505050"
+                                   FontSize="10" FontAttributes="Bold" CharacterSpacing="1.5" />
+                            <Label Text="{Binding EnvioLabel}"
+                                   TextColor="#CCFF00" FontSize="9" CharacterSpacing="0.5"
+                                   IsVisible="{Binding EnvioGratis}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1"
+                               IsVisible="{Binding EnvioGratis, Converter={StaticResource InvertBoolConverter}}"
+                               Text="{Binding CostoEnvio, StringFormat='${0:F2}'}"
+                               TextColor="White" FontSize="14" VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               IsVisible="{Binding EnvioGratis}"
+                               Text="GRATIS"
+                               TextColor="#CCFF00" FontSize="12" FontAttributes="Bold"
+                               CharacterSpacing="1" VerticalOptions="Center" />
+                    </Grid>
+
+                    <BoxView Color="#1E1E1E" HeightRequest="1" />
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="TOTAL"
+                               TextColor="White" FontSize="12" FontAttributes="Bold"
+                               CharacterSpacing="2" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{Binding Total, StringFormat='${0:F2}'}"
+                               TextColor="#CCFF00" FontSize="26" FontAttributes="Bold"
+                               VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- Dirección de entrega -->
+                    <Label Text="DIRECCIÓN DE ENTREGA" TextColor="#3A3A3A" FontSize="9"
+                           FontAttributes="Bold" CharacterSpacing="2" Margin="0,8,0,2" />
+
+                    <!-- Resumen dirección seleccionada (toca para cambiar) -->
+                    <Border BackgroundColor="#141414"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Stroke="#1E1E1E"
+                            Padding="14,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleAddressPickerCommand}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding SelectedAddress.Name, TargetNullValue='Sin dirección seleccionada'}"
+                                       TextColor="White" FontSize="12" FontAttributes="Bold" />
+                                <Label Text="{Binding SelectedAddressLabel}"
+                                       TextColor="#505050" FontSize="11" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1" Text="⌄" TextColor="#CCFF00" FontSize="20"
+                                   VerticalOptions="Center" Margin="8,0,0,0" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Lista de direcciones expandible (BindableLayout: sin scroll anidado) -->
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding UserAddresses}"
+                                         IsVisible="{Binding ShowAddressPicker}"
+                                         Spacing="4" Margin="0,4,0,0">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Address">
+                                <Border StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="1"
+                                        Stroke="#252525"
+                                        BackgroundColor="Transparent"
+                                        Padding="12,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=SelectAddressCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="1">
+                                            <Label Text="{Binding Name}"
+                                                   TextColor="White" FontSize="12" FontAttributes="Bold" />
+                                            <Label Text="{Binding Street}"
+                                                   TextColor="#606060" FontSize="11" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="›" TextColor="#CCFF00"
+                                               FontSize="18" VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <!-- Sin direcciones: link a agregar -->
+                    <Border BackgroundColor="Transparent"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Stroke="#252525"
+                            Padding="0,10"
+                            IsVisible="{Binding TieneAddresses, Converter={StaticResource InvertBoolConverter}}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToAddressesCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="+ Agregar dirección de entrega"
+                               TextColor="#3A3A3A" FontSize="12"
+                               HorizontalOptions="Center" />
+                    </Border>
+
+                    <!-- Promociones -->
+                    <Border BackgroundColor="Transparent"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Stroke="#CCFF0033"
+                            Padding="0,12"
+                            Margin="0,4,0,0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToPromocionesCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Label Text="🏷" FontSize="13" VerticalOptions="Center" />
+                            <Label Text="VER PROMOCIONES DISPONIBLES"
+                                   TextColor="#CCFF00"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   CharacterSpacing="1"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </CollectionView.Footer>
         </CollectionView>
 
-        <!-- Resumen + Checkout -->
-        <VerticalStackLayout Grid.Row="2" Padding="20,16,20,20" Spacing="10" BackgroundColor="#111111">
-
-            <!-- Divider top -->
-            <BoxView Color="#1E1E1E" HeightRequest="1" Margin="0,-4,0,0" />
-
-            <Grid ColumnDefinitions="*, Auto">
-                <Label Grid.Column="0" Text="SUBTOTAL" TextColor="#505050"
-                       FontSize="10" FontAttributes="Bold" CharacterSpacing="1.5"
-                       VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding Subtotal, StringFormat='${0:F2}'}"
-                       TextColor="White" FontSize="14" VerticalOptions="Center" />
-            </Grid>
-
-            <Grid ColumnDefinitions="*, Auto"
-                  IsVisible="{Binding DiscountLabel, Converter={StaticResource NotEmptyConverter}}">
-                <Label Grid.Column="0" Text="{Binding DiscountLabel}"
-                       TextColor="#505050" FontSize="10" FontAttributes="Bold"
-                       CharacterSpacing="1" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding Discount, StringFormat='-${0:F2}'}"
-                       TextColor="#CCFF00" FontSize="14" VerticalOptions="Center" />
-            </Grid>
-
-            <!-- Envío -->
-            <Grid ColumnDefinitions="*, Auto">
-                <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
-                    <Label Text="ENVÍO" TextColor="#505050"
-                           FontSize="10" FontAttributes="Bold" CharacterSpacing="1.5" />
-                    <Label Text="{Binding EnvioLabel}"
-                           TextColor="#CCFF00" FontSize="9" CharacterSpacing="0.5"
-                           IsVisible="{Binding EnvioGratis}" />
-                </VerticalStackLayout>
-                <Label Grid.Column="1"
-                       IsVisible="{Binding EnvioGratis, Converter={StaticResource InvertBoolConverter}}"
-                       Text="{Binding CostoEnvio, StringFormat='${0:F2}'}"
-                       TextColor="White" FontSize="14" VerticalOptions="Center" />
-                <Label Grid.Column="1"
-                       IsVisible="{Binding EnvioGratis}"
-                       Text="GRATIS"
-                       TextColor="#CCFF00" FontSize="12" FontAttributes="Bold"
-                       CharacterSpacing="1" VerticalOptions="Center" />
-            </Grid>
-
-            <BoxView Color="#1E1E1E" HeightRequest="1" />
-
-            <Grid ColumnDefinitions="*, Auto">
-                <Label Grid.Column="0" Text="TOTAL"
-                       TextColor="White" FontSize="12" FontAttributes="Bold"
-                       CharacterSpacing="2" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding Total, StringFormat='${0:F2}'}"
-                       TextColor="#CCFF00" FontSize="26" FontAttributes="Bold"
-                       VerticalOptions="Center" />
-            </Grid>
-
-            <!-- Dirección de entrega -->
-            <Label Text="DIRECCIÓN DE ENTREGA" TextColor="#3A3A3A" FontSize="9"
-                   FontAttributes="Bold" CharacterSpacing="2" Margin="0,4,0,6" />
-
-            <!-- Resumen dirección seleccionada -->
-            <Border BackgroundColor="#141414"
-                    StrokeShape="RoundRectangle 8"
-                    StrokeThickness="1"
-                    Stroke="#1E1E1E"
-                    Padding="14,10">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding ToggleAddressPickerCommand}" />
-                </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="*, Auto">
-                    <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="{Binding SelectedAddress.Name, TargetNullValue='Sin dirección seleccionada'}"
-                               TextColor="White" FontSize="12" FontAttributes="Bold" />
-                        <Label Text="{Binding SelectedAddressLabel}"
-                               TextColor="#505050" FontSize="11" />
-                    </VerticalStackLayout>
-                    <Label Grid.Column="1" Text="⌄" TextColor="#CCFF00" FontSize="20"
-                           VerticalOptions="Center" Margin="8,0,0,0" />
-                </Grid>
-            </Border>
-
-            <!-- Lista de direcciones expandible -->
-            <CollectionView ItemsSource="{Binding UserAddresses}"
-                            SelectionMode="Single"
-                            SelectedItem="{Binding SelectedAddress}"
-                            IsVisible="{Binding ShowAddressPicker}"
-                            HeightRequest="150"
-                            Margin="0,4,0,0">
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Address">
-                        <Border StrokeShape="RoundRectangle 8"
-                                StrokeThickness="1"
-                                Padding="12,8">
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroupList>
-                                    <VisualStateGroup x:Name="CommonStates">
-                                        <VisualState x:Name="Normal">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                                <Setter Property="Stroke" Value="#252525" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                        <VisualState x:Name="Selected">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="#0D1A00" />
-                                                <Setter Property="Stroke" Value="#CCFF00" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                    </VisualStateGroup>
-                                </VisualStateGroupList>
-                            </VisualStateManager.VisualStateGroups>
-                            <Grid ColumnDefinitions="*, Auto">
-                                <VerticalStackLayout Grid.Column="0" Spacing="1">
-                                    <Label Text="{Binding Name}"
-                                           TextColor="White" FontSize="12" FontAttributes="Bold" />
-                                    <Label Text="{Binding Street}"
-                                           TextColor="#606060" FontSize="11" />
-                                </VerticalStackLayout>
-                                <Label Grid.Column="1" Text="✓" TextColor="#CCFF00"
-                                       FontSize="14" VerticalOptions="Center" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
-            <!-- Sin direcciones: link a agregar -->
-            <Border BackgroundColor="Transparent"
-                    StrokeShape="RoundRectangle 8"
-                    StrokeThickness="1"
-                    Stroke="#252525"
-                    Padding="0,10"
-                    IsVisible="{Binding TieneAddresses, Converter={StaticResource InvertBoolConverter}}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoToAddressesCommand}" />
-                </Border.GestureRecognizers>
-                <Label Text="+ Agregar dirección de entrega"
-                       TextColor="#3A3A3A" FontSize="12"
-                       HorizontalOptions="Center" />
-            </Border>
-
-            <!-- Modalidad de pago -->
-            <Label Text="MODALIDAD DE PAGO" TextColor="#3A3A3A" FontSize="9"
-                   FontAttributes="Bold" CharacterSpacing="2" Margin="0,4,0,2" />
-
-            <CollectionView ItemsSource="{Binding PaymentOptions}"
-                            SelectionMode="Single"
-                            SelectedItem="{Binding SelectedPayment}"
-                            HeightRequest="42">
-                <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
-                </CollectionView.ItemsLayout>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="x:String">
-                        <Border StrokeShape="RoundRectangle 20"
-                                StrokeThickness="1"
-                                BackgroundColor="Transparent"
-                                Stroke="#252525"
-                                Padding="14,10">
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroupList>
-                                    <VisualStateGroup x:Name="CommonStates">
-                                        <VisualState x:Name="Normal">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="Transparent" />
-                                                <Setter Property="Stroke" Value="#252525" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                        <VisualState x:Name="Selected">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="#CCFF00" />
-                                                <Setter Property="Stroke" Value="#CCFF00" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                    </VisualStateGroup>
-                                </VisualStateGroupList>
-                            </VisualStateManager.VisualStateGroups>
-                            <Label Text="{Binding .}" FontSize="11" FontAttributes="Bold" CharacterSpacing="0.5">
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroupList>
-                                        <VisualStateGroup x:Name="CommonStates">
-                                            <VisualState x:Name="Normal">
-                                                <VisualState.Setters>
-                                                    <Setter Property="TextColor" Value="#666666" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                            <VisualState x:Name="Selected">
-                                                <VisualState.Setters>
-                                                    <Setter Property="TextColor" Value="#0D0D0D" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                        </VisualStateGroup>
-                                    </VisualStateGroupList>
-                                </VisualStateManager.VisualStateGroups>
-                            </Label>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
-            <!-- MSI mensualidad -->
-            <Border BackgroundColor="#0D1A00"
-                    StrokeShape="RoundRectangle 6"
-                    StrokeThickness="1"
-                    Stroke="#CCFF0022"
-                    Padding="12,8"
-                    IsVisible="{Binding MsiLabel, Converter={StaticResource NotEmptyConverter}}">
-                <Label Text="{Binding MsiLabel}"
-                       TextColor="#CCFF00"
-                       FontSize="12"
-                       FontAttributes="Bold"
-                       CharacterSpacing="0.5"
-                       HorizontalOptions="Center" />
-            </Border>
-
-            <!-- Promociones -->
-            <Border BackgroundColor="Transparent"
-                    StrokeShape="RoundRectangle 8"
-                    StrokeThickness="1"
-                    Stroke="#CCFF0033"
-                    Padding="0,12">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding GoToPromocionesCommand}" />
-                </Border.GestureRecognizers>
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
-                    <Label Text="🏷"
-                           FontSize="13"
-                           VerticalOptions="Center" />
-                    <Label Text="VER PROMOCIONES DISPONIBLES"
-                           TextColor="#CCFF00"
-                           FontSize="11"
+        <!-- Botón fijo: continuar al pago -->
+        <Border Grid.Row="2"
+                BackgroundColor="#CCFF00"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="0"
+                Margin="20,8,20,20"
+                IsVisible="{Binding TotalItemCount, Converter={StaticResource NotEmptyConverter}}"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertBoolConverter}}">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ConfirmPurchaseCommand}" />
+            </Border.GestureRecognizers>
+            <Grid HeightRequest="56">
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#0D0D0D"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                <VerticalStackLayout IsVisible="{Binding IsBusy, Converter={StaticResource InvertBoolConverter}}"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Spacing="2">
+                    <Label Text="CONTINUAR AL PAGO"
+                           TextColor="#0D0D0D"
+                           FontSize="14"
                            FontAttributes="Bold"
-                           CharacterSpacing="1"
-                           VerticalOptions="Center" />
-                </HorizontalStackLayout>
-            </Border>
+                           CharacterSpacing="2"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding Total, StringFormat='${0:F2}'}"
+                           TextColor="#0D0D0D"
+                           FontSize="11"
+                           Opacity="0.6"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
 
-            <!-- Botón confirmar -->
-            <Border BackgroundColor="#CCFF00"
-                    StrokeShape="RoundRectangle 8"
-                    StrokeThickness="0"
-                    Padding="0,18"
-                    Margin="0,4,0,0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding ConfirmPurchaseCommand}" />
-                </Border.GestureRecognizers>
-                <Label Text="CONFIRMAR COMPRA"
-                       TextColor="#0D0D0D"
-                       FontSize="14"
-                       FontAttributes="Bold"
-                       CharacterSpacing="2"
-                       HorizontalOptions="Center" />
-            </Border>
-
-        </VerticalStackLayout>
     </Grid>
 </ContentPage>

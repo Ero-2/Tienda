@@ -153,18 +153,33 @@
                                VerticalOptions="Center" />
                     </Grid>
 
-                    <!-- MSI mensualidad -->
+                    <!-- MSI: el total no cambia, se reparte sin intereses -->
                     <Border BackgroundColor="#0D1A00"
                             StrokeShape="RoundRectangle 6"
                             StrokeThickness="1"
                             Stroke="#CCFF0033"
-                            Padding="10,6"
-                            IsVisible="{Binding MsiLabel, Converter={StaticResource NotEmptyConverter}}">
-                        <Label Text="{Binding MsiLabel}"
-                               TextColor="#CCFF00"
-                               FontSize="12"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center" />
+                            Padding="12,10"
+                            IsVisible="{Binding EsMsi}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding MsiLabel}"
+                                   TextColor="#CCFF00"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center" />
+                            <BoxView Color="#CCFF0022" HeightRequest="1" />
+                            <Grid ColumnDefinitions="*, Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="1">
+                                    <Label Text="PAGAS HOY" TextColor="#CCFF00" FontSize="9"
+                                           FontAttributes="Bold" CharacterSpacing="2" />
+                                    <Label Text="1ª mensualidad · resto cada mes"
+                                           TextColor="#606060" FontSize="10" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="{Binding MontoHoy, StringFormat='${0:F2}'}"
+                                       TextColor="White" FontSize="18" FontAttributes="Bold"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </VerticalStackLayout>
                     </Border>
 
                 </VerticalStackLayout>
@@ -379,7 +394,7 @@
                                TextColor="#0D0D0D" FontSize="15"
                                FontAttributes="Bold" CharacterSpacing="2.5"
                                HorizontalOptions="Center" />
-                        <Label Text="{Binding Total, StringFormat='${0:F2} USD'}"
+                        <Label Text="{Binding MontoHoy, StringFormat='${0:F2} USD'}"
                                TextColor="#0D0D0D" FontSize="11"
                                HorizontalOptions="Center"
                                Opacity="0.6" />

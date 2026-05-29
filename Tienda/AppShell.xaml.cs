@@ -1,5 +1,6 @@
 ﻿// Tienda/AppShell.xaml.cs
 using Microsoft.Extensions.DependencyInjection;
+using Tienda.Services;
 using Tienda.Views;
 
 namespace Tienda;
@@ -10,11 +11,10 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
 
-        Routing.RegisterRoute("LoginPage", typeof(LoginPage));
+        // LoginPage, ProductsPage, CartPage y AccountPage son ShellContent en AppShell.xaml;
+        // no se registran aquí para evitar rutas duplicadas. Se navegan con //LoginPage, //CartPage, etc.
         Routing.RegisterRoute("ProductDetailPage", typeof(ProductDetailPage));
-        Routing.RegisterRoute("CartPage", typeof(CartPage));
-        Routing.RegisterRoute("AccountPage", typeof(AccountPage));
-        Routing.RegisterRoute("RegisterPage", typeof(RegisterPage)); // Añade esta si tienes RegisterPage
+        Routing.RegisterRoute("RegisterPage", typeof(RegisterPage));
         Routing.RegisterRoute("OrderHistoryPage", typeof(OrderHistoryPage));
         Routing.RegisterRoute("PaymentPage", typeof(PaymentPage));
         Routing.RegisterRoute("AddressesPage", typeof(AddressesPage));
@@ -24,5 +24,11 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("CuotasPage",       typeof(CuotasPage));
         Routing.RegisterRoute("OrderDetailPage",    typeof(OrderDetailPage));
         Routing.RegisterRoute("PaymentResultPage", typeof(PaymentResultPage));
+
+        // Gate de arranque: la app abre en LoginPage (primer ShellContent). Si ya hay
+        // sesión válida, salta a las tabs; si no, se queda en Login (sin perfil fantasma).
+        var auth = services?.GetService<IAuthService>();
+        if (auth?.IsLoggedIn == true)
+            Dispatcher.Dispatch(async () => await GoToAsync("//ProductsPage"));
     }
 }

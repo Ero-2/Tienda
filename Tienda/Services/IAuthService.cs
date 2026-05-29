@@ -9,9 +9,6 @@ public interface IAuthService
     Task<(bool Success, string? Error)> LoginAsync(string email, string password);
     Task<(bool Success, string? Error)> RegisterAsync(string nombre, string email, string password);
 
-    // Login local para invitados
-    void LoginAsGuest(string email);
-
     void Logout();
     string? GetUserEmail();
     string? GetToken();

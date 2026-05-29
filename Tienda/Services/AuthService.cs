@@ -17,17 +17,28 @@ public class AuthService : IAuthService
     private const string UserIdKey     = "userId";
     private const string UserNameKey   = "userName";
 
-    // Usada solo para logins de invitado
-    private const string JwtSecret   = "T13nd4D3p4rtam3nt4l-S3cr3tK3y-2024!@#$";
-    private const string JwtIssuer   = "ApiGateway.TiendaDepartamental";
-    private const string JwtAudience = "TiendaDepartamental.Clientes";
-
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public bool IsLoggedIn => Preferences.Get(IsLoggedInKey, false);
+    // Sesión válida = bandera activa + token presente y no expirado.
+    // Si el token caducó (o falta), se limpia la sesión para no mostrar un perfil fantasma.
+    public bool IsLoggedIn
+    {
+        get
+        {
+            if (!Preferences.Get(IsLoggedInKey, false)) return false;
+
+            var token = Preferences.Get(TokenKey, string.Empty);
+            if (string.IsNullOrWhiteSpace(token) || TokenExpirado(token))
+            {
+                Logout();
+                return false;
+            }
+            return true;
+        }
+    }
 
     public AuthService(HttpClient http) => _http = http;
 
@@ -91,18 +102,6 @@ public class AuthService : IAuthService
         }
     }
 
-    // ── Invitado ──────────────────────────────────────────────
-
-    public void LoginAsGuest(string email)
-    {
-        var token = GenerateGuestJwt(email);
-        Preferences.Set(IsLoggedInKey, true);
-        Preferences.Set(UserEmailKey,  email);
-        Preferences.Set(TokenKey,      token);
-        Preferences.Set(UserIdKey,     0);
-        Preferences.Set(UserNameKey,   email.Split('@')[0]);
-    }
-
     // ── Sesión ────────────────────────────────────────────────
 
     public void Logout()
@@ -129,25 +128,27 @@ public class AuthService : IAuthService
         Preferences.Set(UserNameKey,   result.Nombre);
     }
 
-    private static string GenerateGuestJwt(string email)
+    // Lee el claim "exp" del JWT (sin validar firma) y determina si ya caducó.
+    private static bool TokenExpirado(string token)
     {
-        var header  = Base64UrlEncode("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
-        var exp     = DateTimeOffset.UtcNow.AddMinutes(60).ToUnixTimeSeconds();
-        var payload = Base64UrlEncode(
-            $"{{\"sub\":\"0\",\"email\":\"{email}\"," +
-            $"\"iss\":\"{JwtIssuer}\",\"aud\":\"{JwtAudience}\",\"exp\":{exp}}}");
+        try
+        {
+            var parts = token.Split('.');
+            if (parts.Length != 3) return true;
 
-        var signing = $"{header}.{payload}";
-        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(JwtSecret));
-        var sig = Base64UrlEncode(hmac.ComputeHash(Encoding.UTF8.GetBytes(signing)));
+            var json = Encoding.UTF8.GetString(Base64UrlDecode(parts[1]));
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("exp", out var expEl)) return true;
 
-        return $"{header}.{payload}.{sig}";
+            return DateTimeOffset.UtcNow.ToUnixTimeSeconds() >= expEl.GetInt64();
+        }
+        catch { return true; }
     }
 
-    private static string Base64UrlEncode(string text) =>
-        Base64UrlEncode(Encoding.UTF8.GetBytes(text));
-
-    private static string Base64UrlEncode(byte[] data) =>
-        Convert.ToBase64String(data)
-            .Replace('+', '-').Replace('/', '_').TrimEnd('=');
+    private static byte[] Base64UrlDecode(string input)
+    {
+        var s = input.Replace('-', '+').Replace('_', '/');
+        s += (s.Length % 4) switch { 2 => "==", 3 => "=", _ => string.Empty };
+        return Convert.FromBase64String(s);
+    }
 }

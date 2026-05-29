@@ -24,6 +24,7 @@ public partial class CartViewModel : ObservableObject
     [ObservableProperty] private string  discountLabel   = string.Empty;
     [ObservableProperty] private string  envioLabel      = string.Empty;
     [ObservableProperty] private bool    envioGratis;
+    [ObservableProperty] private bool    isBusy;
 
     // Dirección de entrega
     [ObservableProperty] private ObservableCollection<Address> userAddresses = new();
@@ -113,6 +114,9 @@ public partial class CartViewModel : ObservableObject
 
     [RelayCommand]
     private void ToggleAddressPicker() => ShowAddressPicker = !ShowAddressPicker;
+
+    [RelayCommand]
+    private void SelectAddress(Address address) => SelectedAddress = address;
 
     [RelayCommand]
     private async Task GoToAddressesAsync() =>
@@ -231,25 +235,26 @@ public partial class CartViewModel : ObservableObject
             return;
         }
 
-        bool confirm = await Shell.Current.DisplayAlert(
-            "CONFIRMAR ORDEN",
-            $"Total: ${Total:F2} · Pago: {SelectedPayment}",
-            "CONFIRMAR", "CANCELAR");
+        if (IsBusy) return;
+        IsBusy = true;
+        try
+        {
+            var dirStr = SelectedAddress is null ? string.Empty
+                : $"{SelectedAddress.Street}, {SelectedAddress.City}, {SelectedAddress.State} {SelectedAddress.ZipCode}".Trim();
 
-        if (!confirm) return;
-
-        var dirStr = SelectedAddress is null ? string.Empty
-            : $"{SelectedAddress.Street}, {SelectedAddress.City}, {SelectedAddress.State} {SelectedAddress.ZipCode}".Trim();
-
-        await Shell.Current.GoToAsync("PaymentPage",
-            new Dictionary<string, object>
-            {
-                ["ModalidadPago"]    = SelectedPayment,
-                ["Total"]            = Total,
-                ["Subtotal"]         = Subtotal,
-                ["Descuento"]        = Discount,
-                ["CostoEnvio"]       = CostoEnvio,
-                ["DireccionEntrega"] = dirStr
-            });
+            // La modalidad de pago (Contado / MSI / Crédito) se elige en PaymentPage,
+            // que es la pantalla de pago. El carrito solo entrega los importes.
+            await Shell.Current.GoToAsync("PaymentPage",
+                new Dictionary<string, object>
+                {
+                    ["ModalidadPago"]    = SelectedPayment,
+                    ["Total"]            = Total,
+                    ["Subtotal"]         = Subtotal,
+                    ["Descuento"]        = Discount,
+                    ["CostoEnvio"]       = CostoEnvio,
+                    ["DireccionEntrega"] = dirStr
+                });
+        }
+        finally { IsBusy = false; }
     }
 }

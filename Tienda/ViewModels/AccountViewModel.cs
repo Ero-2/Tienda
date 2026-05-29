@@ -55,7 +55,7 @@ public partial class AccountViewModel : ObservableObject
         LoadUserData();
     }
 
-    private void LoadUserData()
+    public void LoadUserData()
     {
         if (!IsLoggedIn) return;
         var email = _authService.GetUserEmail() ?? "NOMADE_USER";
@@ -137,6 +137,14 @@ public partial class AccountViewModel : ObservableObject
             return;
         }
 
+        var userId = _authService.GetUserId();
+        if (userId <= 0)
+        {
+            // Invitado: no tiene cuenta real, no puede persistir direcciones.
+            AddAddressError = "Crea una cuenta para guardar direcciones.";
+            return;
+        }
+
         AddAddressError = string.Empty;
         var address = new Address
         {
@@ -149,7 +157,6 @@ public partial class AccountViewModel : ObservableObject
             IsDefault = NewEsPrincipal
         };
 
-        var userId = _authService.GetUserId();
         var result = await _clienteService.AgregarDireccionAsync(userId, address);
 
         if (result is not null)

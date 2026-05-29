@@ -125,35 +125,8 @@
                     </Grid>
                 </Border>
 
-                <!-- Divider -->
-                <Grid ColumnDefinitions="*, Auto, *" Margin="0,6,0,6" ColumnSpacing="14">
-                    <BoxView Grid.Column="0" Color="#1A1A1A" HeightRequest="1" VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="o" TextColor="#303030" FontSize="12" />
-                    <BoxView Grid.Column="2" Color="#1A1A1A" HeightRequest="1" VerticalOptions="Center" />
-                </Grid>
-
-                <!-- Guest -->
-                <Border BackgroundColor="Transparent"
-                        StrokeShape="RoundRectangle 8"
-                        StrokeThickness="1"
-                        Stroke="#1E1E1E"
-                        Margin="0,6,0,40">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ContinueAsGuestCommand}" />
-                    </Border.GestureRecognizers>
-                    <Label Text="CONTINUAR COMO INVITADO"
-                           TextColor="#505050"
-                           FontSize="12"
-                           FontAttributes="Bold"
-                           CharacterSpacing="1.5"
-                           HorizontalOptions="Center"
-                           HeightRequest="50"
-                           VerticalOptions="Center"
-                           VerticalTextAlignment="Center" />
-                </Border>
-
                 <!-- Register -->
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,28,0,0">
                     <Label Text="¿No tienes cuenta?" TextColor="#303030" FontSize="12" />
                     <Label Text="REGÍSTRATE"
                            TextColor="#CCFF00"

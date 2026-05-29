@@ -123,9 +123,9 @@ public partial class ProductsViewModel : ObservableObject
         try
         {
             if (_authService.IsLoggedIn)
-                await Shell.Current.GoToAsync("AccountPage");
+                await Shell.Current.GoToAsync("//AccountPage");
             else
-                await Shell.Current.GoToAsync("LoginPage");
+                await Shell.Current.GoToAsync("///LoginPage");
         }
         catch (Exception ex)
         {
@@ -138,7 +138,7 @@ public partial class ProductsViewModel : ObservableObject
     {
         try
         {
-            await Shell.Current.GoToAsync("CartPage");
+            await Shell.Current.GoToAsync("//CartPage");
         }
         catch (Exception ex)
         {

@@ -90,7 +90,7 @@ public partial class ProductDetailViewModel : ObservableObject
             : product.Name;
 
         await Shell.Current.DisplayAlert("✓ AGREGADO", detalle, "Ver carrito");
-        await Shell.Current.GoToAsync("CartPage");
+        await Shell.Current.GoToAsync("//CartPage");
     }
 
     [RelayCommand]

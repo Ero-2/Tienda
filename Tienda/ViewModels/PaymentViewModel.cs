@@ -43,14 +43,19 @@ public partial class PaymentViewModel : ObservableObject
     public bool EsPagoCredito  => ModalidadPago == "Crédito";
     public bool EsPagoTarjeta  => !EsPagoCredito;
 
-    public string MsiLabel
-    {
-        get
-        {
-            var meses = ModalidadPago switch { "3 MSI" => 3, "6 MSI" => 6, "9 MSI" => 9, _ => 0 };
-            return (meses == 0 || Total <= 0) ? string.Empty : $"{meses} pagos de ${Total / meses:F2}/mes";
-        }
-    }
+    // Meses del plan MSI seleccionado (0 = contado/crédito).
+    public int MesesPlan => ModalidadPago switch { "3 MSI" => 3, "6 MSI" => 6, "9 MSI" => 9, _ => 0 };
+
+    // MSI = "sin intereses": el TOTAL no cambia, solo se reparte.
+    public bool EsMsi => MesesPlan > 0;
+
+    // Lo que se cobra HOY: con MSI es la primera mensualidad; si no, el total completo.
+    public decimal MontoHoy => EsMsi && Total > 0 ? Math.Round(Total / MesesPlan, 2) : Total;
+
+    public string MsiLabel =>
+        (!EsMsi || Total <= 0)
+            ? string.Empty
+            : $"{MesesPlan} mensualidades de ${Total / MesesPlan:F2} · sin intereses";
 
     public List<string> PaymentOptions
     {
@@ -68,6 +73,9 @@ public partial class PaymentViewModel : ObservableObject
     partial void OnModalidadPagoChanged(string value)
     {
         OnPropertyChanged(nameof(MsiLabel));
+        OnPropertyChanged(nameof(MesesPlan));
+        OnPropertyChanged(nameof(EsMsi));
+        OnPropertyChanged(nameof(MontoHoy));
         OnPropertyChanged(nameof(EsPagoCredito));
         OnPropertyChanged(nameof(EsPagoTarjeta));
         if (value == "Crédito") _ = CargarCreditoAsync();
@@ -75,6 +83,8 @@ public partial class PaymentViewModel : ObservableObject
     partial void OnTotalChanged(decimal value)
     {
         OnPropertyChanged(nameof(MsiLabel));
+        OnPropertyChanged(nameof(EsMsi));
+        OnPropertyChanged(nameof(MontoHoy));
         OnPropertyChanged(nameof(PaymentOptions));
         // Resetear si la opción ya no aplica con el nuevo total
         if (ModalidadPago != "Contado" && ModalidadPago != "Crédito" &&

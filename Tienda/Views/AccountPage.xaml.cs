@@ -23,6 +23,9 @@ public partial class AccountPage : ContentPage
             return;
         }
 
+        // Refresca nombre/iniciales del usuario actual (el VM es singleton y podría
+        // tener datos de una sesión anterior).
+        _viewModel.LoadUserData();
         await _viewModel.LoadStatsCommand.ExecuteAsync(null);
     }
 }

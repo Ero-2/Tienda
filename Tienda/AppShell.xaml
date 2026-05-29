@@ -4,10 +4,37 @@
        xmlns:views="clr-namespace:Tienda.Views"
        x:Class="Tienda.AppShell"
        Shell.NavBarIsVisible="False"
-       Shell.FlyoutBehavior="Disabled">
+       Shell.FlyoutBehavior="Disabled"
+       Shell.TabBarBackgroundColor="#0D0D0D"
+       Shell.TabBarForegroundColor="#CCFF00"
+       Shell.TabBarTitleColor="#CCFF00"
+       Shell.TabBarUnselectedColor="#4A4A4A">
 
+    <!-- Login: ShellContent raíz (fuera del TabBar) para que el routing absoluto
+         //LoginPage funcione incluso como única página del stack al arrancar. -->
     <ShellContent
-        Route="ProductsPage"
-        ContentTemplate="{DataTemplate views:ProductsPage}" />
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate views:LoginPage}"
+        Shell.TabBarIsVisible="False" />
+
+    <TabBar>
+        <ShellContent
+            Title="CATÁLOGO"
+            Icon="tab_catalog.png"
+            Route="ProductsPage"
+            ContentTemplate="{DataTemplate views:ProductsPage}" />
+
+        <ShellContent
+            Title="CARRITO"
+            Icon="tab_cart.png"
+            Route="CartPage"
+            ContentTemplate="{DataTemplate views:CartPage}" />
+
+        <ShellContent
+            Title="PERFIL"
+            Icon="tab_profile.png"
+            Route="AccountPage"
+            ContentTemplate="{DataTemplate views:AccountPage}" />
+    </TabBar>
 
 </Shell>
