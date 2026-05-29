@@ -144,8 +144,11 @@ public class ClienteService
             .ToListAsync();
     }
 
-    public async Task<DireccionResponse> AgregarDireccionAsync(int clienteId, DireccionRequest req)
+    public async Task<(DireccionResponse? dir, string? error)> AgregarDireccionAsync(int clienteId, DireccionRequest req)
     {
+        if (!await _db.Clientes.AnyAsync(c => c.Id == clienteId))
+            return (null, "Cliente no encontrado. Inicia sesión con una cuenta para guardar direcciones.");
+
         if (req.EsPrincipal)
         {
             var anteriores = await _db.Direcciones
@@ -169,7 +172,7 @@ public class ClienteService
         _db.Direcciones.Add(dir);
         await _db.SaveChangesAsync();
 
-        return new DireccionResponse
+        return (new DireccionResponse
         {
             Id           = dir.Id,
             Nombre       = dir.Nombre,
@@ -179,7 +182,7 @@ public class ClienteService
             CodigoPostal = dir.CodigoPostal,
             Pais         = dir.Pais,
             EsPrincipal  = dir.EsPrincipal
-        };
+        }, null);
     }
 
     public async Task<bool> EliminarDireccionAsync(int clienteId, int direccionId)

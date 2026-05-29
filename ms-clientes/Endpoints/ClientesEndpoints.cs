@@ -69,8 +69,10 @@ public static class ClientesEndpoints
         // POST /api/clientes/{id}/direcciones
         group.MapPost("/{id:int}/direcciones", async (int id, DireccionRequest req, ClienteService service) =>
         {
-            var dir = await service.AgregarDireccionAsync(id, req);
-            return Results.Created($"/api/clientes/{id}/direcciones/{dir.Id}", dir);
+            var (dir, error) = await service.AgregarDireccionAsync(id, req);
+            return error is null
+                ? Results.Created($"/api/clientes/{id}/direcciones/{dir!.Id}", dir)
+                : Results.BadRequest(new { error });
         })
         .WithName("AgregarDireccion")
         .WithSummary("Agrega una dirección al cliente");
