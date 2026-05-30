@@ -28,7 +28,7 @@ public partial class AppShell : Shell
         // Gate de arranque: la app abre en LoginPage (primer ShellContent). Si ya hay
         // sesión válida, salta a las tabs; si no, se queda en Login (sin perfil fantasma).
         var auth = services?.GetService<IAuthService>();
-        if (auth?.IsLoggedIn == true)
+        if (auth?.IsLoggedIn == true || auth?.IsGuest == true)
             Dispatcher.Dispatch(async () => await GoToAsync("//ProductsPage"));
     }
 }

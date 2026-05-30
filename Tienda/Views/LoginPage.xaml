@@ -138,7 +138,18 @@
                         </Label.GestureRecognizers>
                     </Label>
                 </HorizontalStackLayout>
-
+                <!-- Invitado -->
+                <Label Text="CONTINUAR COMO INVITADO"
+                           TextColor="#505050"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           CharacterSpacing="1.5"
+                           HorizontalOptions="Center"
+                           Margin="0,16,0,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ContinueAsGuestCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
             </VerticalStackLayout>
         </Grid>
     </ScrollView>

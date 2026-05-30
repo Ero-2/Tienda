@@ -227,13 +227,25 @@ public partial class CartViewModel : ObservableObject
 
         if (!_authService.IsLoggedIn)
         {
-            bool goLogin = await Shell.Current.DisplayAlert(
-                "Inicia sesión",
-                "Necesitas una cuenta para confirmar tu orden.",
-                "INICIAR SESIÓN", "CANCELAR");
-            if (goLogin) await Shell.Current.GoToAsync("LoginPage");
+            if (_authService.IsGuest)
+            {
+                bool goReg = await Shell.Current.DisplayAlert(
+                    "THE DROP",
+                    "Necesitas una cuenta para comprar. ¡Regístrate gratis!",
+                    "REGISTRARME", "CANCELAR");
+                if (goReg) await Shell.Current.GoToAsync("RegisterPage");
+            }
+            else
+            {
+                bool goLogin = await Shell.Current.DisplayAlert(
+                    "Inicia sesión",
+                    "Necesitas una cuenta para confirmar tu orden.",
+                    "INICIAR SESIÓN", "CANCELAR");
+                if (goLogin) await Shell.Current.GoToAsync("LoginPage");
+            }
             return;
         }
+
 
         if (IsBusy) return;
         IsBusy = true;

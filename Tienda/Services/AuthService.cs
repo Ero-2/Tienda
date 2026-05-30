@@ -17,6 +17,13 @@ public class AuthService : IAuthService
     private const string UserIdKey     = "userId";
     private const string UserNameKey   = "userName";
 
+    private const string IsGuestKey = "isGuest";
+
+    public bool IsGuest => Preferences.Get(IsGuestKey, false);
+
+    public void ContinueAsGuest()
+        => Preferences.Set(IsGuestKey, true);
+
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNameCaseInsensitive = true
@@ -55,16 +62,16 @@ public class AuthService : IAuthService
             if (!response.IsSuccessStatusCode)
                 return (false, "Email o contraseña incorrectos");
 
-            var json   = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<LoginResponseDto>(json, JsonOpts);
             if (result is null) return (false, "Error al procesar respuesta");
 
             GuardarSesion(result);
             return (true, null);
         }
-        catch
+        catch (Exception ex)
         {
-            return (false, "No se pudo conectar al servidor");
+            return (false, $"Error: {ex.GetType().Name} - {ex.Message}");
         }
     }
 
@@ -89,16 +96,16 @@ public class AuthService : IAuthService
                 catch { return (false, "Error al registrarse"); }
             }
 
-            var json   = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<LoginResponseDto>(json, JsonOpts);
             if (result is null) return (false, "Error al procesar respuesta");
 
             GuardarSesion(result);
             return (true, null);
         }
-        catch
+        catch (Exception ex)
         {
-            return (false, "No se pudo conectar al servidor");
+            return (false, $"Error: {ex.GetType().Name} - {ex.Message}");
         }
     }
 
@@ -111,6 +118,7 @@ public class AuthService : IAuthService
         Preferences.Remove(TokenKey);
         Preferences.Remove(UserIdKey);
         Preferences.Remove(UserNameKey);
+        Preferences.Remove(IsGuestKey);
     }
 
     public string? GetUserEmail() => Preferences.Get(UserEmailKey, string.Empty);

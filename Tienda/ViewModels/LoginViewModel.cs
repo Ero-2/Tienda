@@ -87,4 +87,10 @@ public partial class LoginViewModel : ObservableObject
     [RelayCommand]
     private async Task ForgotPasswordAsync() =>
         await Shell.Current.DisplayAlert("THE DROP", "Te enviaremos un enlace a tu correo.", "OK");
+    [RelayCommand]
+    private async Task ContinueAsGuestAsync()
+    {
+        _authService.ContinueAsGuest();
+        await Shell.Current.GoToAsync("///ProductsPage");
+    }
 }

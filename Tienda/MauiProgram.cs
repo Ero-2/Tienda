@@ -13,11 +13,7 @@ public static class MauiProgram
 
     public static MauiApp CreateMauiApp()
     {
-#if ANDROID
-        const string host = "http://10.0.2.2";
-#else
-        const string host = "http://localhost";
-#endif
+        const string host = "https://sa-gateway.axel-carlin.space";
 
         var builder = MauiApp.CreateBuilder();
         builder
@@ -33,16 +29,28 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICartService, CartService>();
 
         // Todos los servicios van por el API Gateway (:5000)
-        var gatewayUri = new Uri($"{host}:5000");
+        var gatewayUri = new Uri(host);
+        builder.Services.AddTransient<HttpClientHandler>();
+        builder.Services.AddHttpClient<IAuthService, AuthService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
 
-        builder.Services.AddHttpClient<IAuthService, AuthService>(c => c.BaseAddress = gatewayUri);
-        builder.Services.AddHttpClient<IClienteService, ClienteService>(c => c.BaseAddress = gatewayUri);
-        builder.Services.AddHttpClient<IOrdenService, OrdenService>(c => c.BaseAddress = gatewayUri);
-        builder.Services.AddHttpClient<IProductoService, ProductoService>(c => c.BaseAddress = gatewayUri);
-        builder.Services.AddHttpClient<IEnvioService, EnvioService>(c => c.BaseAddress = gatewayUri);
-        builder.Services.AddHttpClient<IPromocionService, PromocionService>(c => c.BaseAddress = gatewayUri);
-        builder.Services.AddHttpClient<IPagosService, PagosService>(c => c.BaseAddress = gatewayUri);
+        builder.Services.AddHttpClient<IClienteService, ClienteService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
 
+        builder.Services.AddHttpClient<IOrdenService, OrdenService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
+
+        builder.Services.AddHttpClient<IProductoService, ProductoService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
+
+        builder.Services.AddHttpClient<IEnvioService, EnvioService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
+
+        builder.Services.AddHttpClient<IPromocionService, PromocionService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
+
+        builder.Services.AddHttpClient<IPagosService, PagosService>(c => c.BaseAddress = gatewayUri)
+            .ConfigurePrimaryHttpMessageHandler<HttpClientHandler>();
         // ViewModels
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<ProductsViewModel>();
