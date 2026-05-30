@@ -1,6 +1,7 @@
 // Tienda/ViewModels/LoginViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Text.RegularExpressions;
 using Tienda.Services;
 
 namespace Tienda.ViewModels;
@@ -66,6 +67,14 @@ public partial class LoginViewModel : ObservableObject
         IsLoading    = true;
         ErrorMessage = string.Empty;
 
+        var policyError = ValidatePasswordPolicy(Password);
+        if (policyError is not null)
+        {
+            ErrorMessage = policyError;
+            IsLoading    = false;
+            return;
+        }
+
         var (success, error) = await _authService.RegisterAsync(Name, Email, Password);
 
         if (success)
@@ -92,5 +101,20 @@ public partial class LoginViewModel : ObservableObject
     {
         _authService.ContinueAsGuest();
         await Shell.Current.GoToAsync("///ProductsPage");
+    }
+
+    private static string? ValidatePasswordPolicy(string pwd)
+    {
+        if (pwd.Length is < 6 or > 12)
+            return "La contraseña debe tener entre 6 y 12 caracteres.";
+        if (!Regex.IsMatch(pwd, "[A-Z]"))
+            return "Debe incluir al menos una letra mayúscula.";
+        if (!Regex.IsMatch(pwd, "[a-z]"))
+            return "Debe incluir al menos una letra minúscula.";
+        if (!Regex.IsMatch(pwd, "[0-9]"))
+            return "Debe incluir al menos un número.";
+        if (!Regex.IsMatch(pwd, "[^A-Za-z0-9]"))
+            return "Debe incluir al menos un signo (ej. !@#$%).";
+        return null;
     }
 }

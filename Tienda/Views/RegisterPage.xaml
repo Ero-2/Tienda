@@ -89,13 +89,23 @@
                     Margin="0,0,0,20">
                 <Entry Text="{Binding Password}"
                        IsPassword="True"
-                       Placeholder="Mínimo 6 caracteres"
+                       Placeholder="6-12 caracteres"
                        PlaceholderColor="#303030"
                        TextColor="White"
                        FontSize="14"
                        BackgroundColor="Transparent"
                        HeightRequest="50" />
             </Border>
+
+            <!-- Requisitos de contraseña -->
+            <VerticalStackLayout Spacing="3" Margin="0,-12,0,20">
+                <Label Text="• 6 a 12 caracteres"
+                       TextColor="#505050" FontSize="11" />
+                <Label Text="• Al menos una mayúscula y una minúscula"
+                       TextColor="#505050" FontSize="11" />
+                <Label Text="• Al menos un número y un signo (!@#$%...)"
+                       TextColor="#505050" FontSize="11" />
+            </VerticalStackLayout>
 
             <!-- Terms -->
             <HorizontalStackLayout Spacing="10" Margin="0,0,0,28">
